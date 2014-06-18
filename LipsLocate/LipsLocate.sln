@@ -1,0 +1,45 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LipsLocate", "LipsLocate\LipsLocate.csproj", "{F1F24B3F-452D-41AA-918E-1FF0B910F0CE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BoxSetting", "..\BoxSetting\BoxSetting\BoxSetting.csproj", "{590801DB-487E-4046-A49B-323E4C144D9E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|Mixed Platforms = Debug|Mixed Platforms
+		Debug|x64 = Debug|x64
+		Release|Any CPU = Release|Any CPU
+		Release|Mixed Platforms = Release|Mixed Platforms
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F1F24B3F-452D-41AA-918E-1FF0B910F0CE}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{F1F24B3F-452D-41AA-918E-1FF0B910F0CE}.Debug|Any CPU.Build.0 = Debug|x64
+		{F1F24B3F-452D-41AA-918E-1FF0B910F0CE}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{F1F24B3F-452D-41AA-918E-1FF0B910F0CE}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{F1F24B3F-452D-41AA-918E-1FF0B910F0CE}.Debug|x64.ActiveCfg = Debug|x64
+		{F1F24B3F-452D-41AA-918E-1FF0B910F0CE}.Debug|x64.Build.0 = Debug|x64
+		{F1F24B3F-452D-41AA-918E-1FF0B910F0CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1F24B3F-452D-41AA-918E-1FF0B910F0CE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F1F24B3F-452D-41AA-918E-1FF0B910F0CE}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{F1F24B3F-452D-41AA-918E-1FF0B910F0CE}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{F1F24B3F-452D-41AA-918E-1FF0B910F0CE}.Release|x64.ActiveCfg = Release|x64
+		{F1F24B3F-452D-41AA-918E-1FF0B910F0CE}.Release|x64.Build.0 = Release|x64
+		{590801DB-487E-4046-A49B-323E4C144D9E}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{590801DB-487E-4046-A49B-323E4C144D9E}.Debug|Any CPU.Build.0 = Debug|x64
+		{590801DB-487E-4046-A49B-323E4C144D9E}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{590801DB-487E-4046-A49B-323E4C144D9E}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{590801DB-487E-4046-A49B-323E4C144D9E}.Debug|x64.ActiveCfg = Debug|x64
+		{590801DB-487E-4046-A49B-323E4C144D9E}.Debug|x64.Build.0 = Debug|x64
+		{590801DB-487E-4046-A49B-323E4C144D9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{590801DB-487E-4046-A49B-323E4C144D9E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{590801DB-487E-4046-A49B-323E4C144D9E}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{590801DB-487E-4046-A49B-323E4C144D9E}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{590801DB-487E-4046-A49B-323E4C144D9E}.Release|x64.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
