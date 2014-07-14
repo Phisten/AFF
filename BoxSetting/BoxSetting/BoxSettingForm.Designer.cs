@@ -57,8 +57,8 @@
             this.label8 = new System.Windows.Forms.Label();
             this.button10 = new System.Windows.Forms.Button();
             this.button11 = new System.Windows.Forms.Button();
-            this.shapeContainer1 = new Microsoft.VisualBasic.PowerPacks.ShapeContainer();
-            this.ovalShape1 = new Microsoft.VisualBasic.PowerPacks.OvalShape();
+            //this.shapeContainer1 = new Microsoft.VisualBasic.PowerPacks.ShapeContainer();
+            //this.ovalShape1 = new Microsoft.VisualBasic.PowerPacks.OvalShape();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.label9 = new System.Windows.Forms.Label();
@@ -331,25 +331,7 @@
             this.button11.TabIndex = 32;
             this.button11.Text = "傳送狀況11";
             this.button11.UseVisualStyleBackColor = true;
-            // 
-            // shapeContainer1
-            // 
-            this.shapeContainer1.Location = new System.Drawing.Point(0, 0);
-            this.shapeContainer1.Margin = new System.Windows.Forms.Padding(0);
-            this.shapeContainer1.Name = "shapeContainer1";
-            this.shapeContainer1.Shapes.AddRange(new Microsoft.VisualBasic.PowerPacks.Shape[] {
-            this.ovalShape1});
-            this.shapeContainer1.Size = new System.Drawing.Size(987, 552);
-            this.shapeContainer1.TabIndex = 33;
-            this.shapeContainer1.TabStop = false;
-            // 
-            // ovalShape1
-            // 
-            this.ovalShape1.FillColor = System.Drawing.Color.Red;
-            this.ovalShape1.FillStyle = Microsoft.VisualBasic.PowerPacks.FillStyle.Solid;
-            this.ovalShape1.Location = new System.Drawing.Point(250, 252);
-            this.ovalShape1.Name = "ovalShape1";
-            this.ovalShape1.Size = new System.Drawing.Size(24, 24);
+
             // 
             // label9
             // 
@@ -434,7 +416,7 @@
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.listBox1);
-            this.Controls.Add(this.shapeContainer1);
+            //this.Controls.Add(this.shapeContainer1);
             this.KeyPreview = true;
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "BoxSettingForm";
@@ -478,11 +460,11 @@
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Button button10;
         private System.Windows.Forms.Button button11;
-        private Microsoft.VisualBasic.PowerPacks.ShapeContainer shapeContainer1;
+        //private Microsoft.VisualBasic.PowerPacks.ShapeContainer shapeContainer1;
         private System.Windows.Forms.Timer timer1;
         private System.ComponentModel.BackgroundWorker backgroundWorker1;
         private System.Windows.Forms.Label label9;
-        private Microsoft.VisualBasic.PowerPacks.OvalShape ovalShape1;
+        //private Microsoft.VisualBasic.PowerPacks.OvalShape ovalShape1;
         private System.Windows.Forms.Button button4;
         private System.Windows.Forms.Button button12;
         private System.Windows.Forms.Label label10;

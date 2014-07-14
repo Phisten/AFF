@@ -551,7 +551,8 @@ namespace BoxSetting
                         this.backgroundWorker1.WorkerReportsProgress = false;
                         this.backgroundWorker1.CancelAsync();
                         this.backgroundWorker1.Dispose();
-                        ovalShape1.FillColor = Color.Red;
+                        //ovalShape1.FillColor = Color.Red;
+                       
                         button3.Text = "連線";
                     }
                 }
@@ -565,12 +566,12 @@ namespace BoxSetting
         {
             if (light == false)
             {
-                ovalShape1.FillColor = Color.Green;
+                //ovalShape1.FillColor = Color.Green;
                 light = true;
             }
             else if (light == true)
             {
-                ovalShape1.FillColor = Color.Gray;
+                //ovalShape1.FillColor = Color.Gray;
                 light = false;
             }
         }
