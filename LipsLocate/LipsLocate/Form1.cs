@@ -17,6 +17,10 @@ namespace LipsLocate
 {
     public partial class Form1 : Form
     {
+        //RS232
+        rs232Form rs232form = new rs232Form();
+
+
         //640*480
         int WebCamIndex = 0;
         int greyThreshValue = 80;
@@ -78,49 +82,7 @@ namespace LipsLocate
 
                     captureImageBox.Image = image;
                     break;
-                case TestType.FoodBlob:
-                    Image<Gray, Byte> greyImg = image.Convert<Gray, Byte>();
-                    greyImg.ROI = roi_1;
 
-                    Image<Gray, Byte> greyThreshImg;
-                    
-                    //greyThreshImg = greyImg.ThresholdBinaryInv(new Gray(greyThreshValue), new Gray(255));
-                    greyThreshImg = greyImg.CopyBlank();
-                    greyThreshValue = (int)Emgu.CV.CvInvoke.cvThreshold(greyImg.Ptr, greyThreshImg.Ptr, greyThreshValue, 255d,Emgu.CV.CvEnum.THRESH.CV_THRESH_BINARY_INV | Emgu.CV.CvEnum.THRESH.CV_THRESH_OTSU);
-
-                    image.Draw("thValue=" + greyThreshValue.ToString(), ref cvFontBack, new Point(0, 50), new Bgr(255, 0, 0));
-
-                    Emgu.CV.Cvb.CvBlobs resultingImgBlobs = new Emgu.CV.Cvb.CvBlobs();
-                    Emgu.CV.Cvb.CvBlobDetector bDetect = new Emgu.CV.Cvb.CvBlobDetector();
-                    uint numWebcamBlobsFound = bDetect.Detect(greyThreshImg, resultingImgBlobs);
-
-                    Image<Bgr, Byte> blobImg = greyThreshImg.Convert<Bgr, Byte>();
-                    Bgr red = new Bgr(0, 0, 255);
-                    int _blobSizeThreshold = 10;
-
-                    foreach (Emgu.CV.Cvb.CvBlob targetBlob in resultingImgBlobs.Values)
-                    {
-                        if (targetBlob.Area > _blobSizeThreshold)
-                        {
-                            Rectangle bBox = targetBlob.BoundingBox;
-                            bBox.X += roi_1.X;
-                            bBox.Y += roi_1.Y;
-                            blobImg.Draw(targetBlob.BoundingBox, red, 1);
-                            image.Draw(bBox, red, 1);
-                        }
-                    }
-
-                    image.Draw(roi_1, new Bgr(255,0,0), 1);
-                    switch (showMode)
-	                {
-                        case 1:
-                            captureImageBox.Image = image;
-                            break;
-                        default:
-                            captureImageBox.Image = blobImg;
-                            break;
-	                }
-                    break;
                 default:
                     break;
             }
@@ -227,6 +189,9 @@ namespace LipsLocate
         private void Form1_Load(object sender, EventArgs e)
         {
             this.Top = 0;
+            rs232form.Show();
+
+            
         }
 
         private void button1_Click(object sender, EventArgs e)

@@ -1234,6 +1234,11 @@ namespace BoxSetting
             debugThreshold = trackBar1.Value;
         }
 
+        private void backgroundWorker1_DoWork_1(object sender, DoWorkEventArgs e)
+        {
+
+        }
+
        
 
         

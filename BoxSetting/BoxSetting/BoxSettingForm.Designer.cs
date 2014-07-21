@@ -57,8 +57,6 @@
             this.label8 = new System.Windows.Forms.Label();
             this.button10 = new System.Windows.Forms.Button();
             this.button11 = new System.Windows.Forms.Button();
-            //this.shapeContainer1 = new Microsoft.VisualBasic.PowerPacks.ShapeContainer();
-            //this.ovalShape1 = new Microsoft.VisualBasic.PowerPacks.OvalShape();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.label9 = new System.Windows.Forms.Label();
@@ -331,7 +329,10 @@
             this.button11.TabIndex = 32;
             this.button11.Text = "傳送狀況11";
             this.button11.UseVisualStyleBackColor = true;
-
+            // 
+            // backgroundWorker1
+            // 
+            this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork_1);
             // 
             // label9
             // 
@@ -416,7 +417,6 @@
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.listBox1);
-            //this.Controls.Add(this.shapeContainer1);
             this.KeyPreview = true;
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "BoxSettingForm";
