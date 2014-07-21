@@ -73,12 +73,17 @@ namespace LipsLocate
             switch (curType)
             {
                 case TestType.LipsLocate:
+
+                    //face Detector
                     mouthDetector(image);
                     //20140603 追加嘴唇高度分界線
                     for (int i = 0, length = image.Height; i < length; i+=length / 10)
                     {
                         image.Draw(new LineSegment2D(new Point(0,i),new Point(image.Width,i)),new Bgr(100,100,100),1);
                     }
+
+                    //Blue Detector
+                    BlueDetector(image);
 
                     captureImageBox.Image = image;
                     break;
@@ -102,6 +107,16 @@ namespace LipsLocate
 
         }
 
+        private void BlueDetector(Image<Bgr, byte> image)
+        {
+            List<Rectangle> blues = new List<Rectangle>();
+            Image<Ycc, byte> yccImg = image.Convert<Ycc, byte>();
+            Image<Gray, byte> cbImg = yccImg[1];
+
+
+
+        }
+
         private void mouthDetector(Image<Bgr, Byte> image)
         {
             List<Rectangle> faces = new List<Rectangle>();
@@ -111,12 +126,22 @@ namespace LipsLocate
             //FaceDetection.DetectFace.Detect(image, "haarcascades\\haarcascade_frontalface_default.xml", "haarcascades\\haarcascade_eye.xml", faces, eyes, out detectionTime);
             foreach (Rectangle face in faces)
             {
-                image.Draw(face, new Bgr(Color.Red), 2);
+                if (rs232form.FaceMinWidth < face.Width && face.Width < rs232form.FaceMaxWidth &&
+                  rs232form.FaceMinHeight < face.Height && face.Height < rs232form.FaceMaxHeight)
+                {
+                    image.Draw(face, new Bgr(Color.Red), 2);
+                }
+                else
+                {
+                    image.Draw(face, new Bgr(Color.Black), 1);
+                }
             }
             int curMouthNumber = 1;
             foreach (Rectangle mouth in mouths)
             {
-                image.Draw(mouth, new Bgr(Color.Blue), 2);
+                image.Draw(mouth, new Bgr(Color.Blue), 1);
+
+
                 string strPos =
                     "pos=(" + (mouth.Left + (mouth.Width / 2.0)) + "," +
                                 (mouth.Top + (mouth.Height / 2.0)) + ")";
@@ -152,6 +177,19 @@ namespace LipsLocate
 
                 foreach (Rectangle f in facesDetected)
                 {
+                    //Test curFace Size
+                    if (rs232form.FaceMinWidth < f.Width && f.Width < rs232form.FaceMaxWidth &&
+                       rs232form.FaceMinHeight < f.Height && f.Height < rs232form.FaceMaxHeight)
+                    {
+                        //bypass
+                    }
+                    else
+                    {
+                        //next
+                        continue;
+                    }
+
+
                     //mouthsDetected
                     int helfHeight = (int)Math.Round(f.Height / 2.0);
                     gray.ROI = new Rectangle(f.Left, f.Top + helfHeight, f.Width, helfHeight);

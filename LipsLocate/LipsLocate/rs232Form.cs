@@ -18,6 +18,7 @@ namespace LipsLocate
         public rs232Form()
         {
             InitializeComponent();
+            UpdateFaceThreshold_TextChanged(null,null);
         }
 
         private void button1_Click(object sender, EventArgs e)
