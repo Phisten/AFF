@@ -22,11 +22,10 @@ namespace LipsLocate
 
 
         //640*480
-        int WebCamIndex = 0;
-        int greyThreshValue = 80;
+        int DefaultWebCamIndex = 0;
         Rectangle roi_1 = new Rectangle(200, 200, 200, 200);
 
-        private Capture _capture = null;
+        internal Capture _capture = null;
         private bool _captureInProgress;
         CascadeClassifier faceHaar = new CascadeClassifier("haarcascades\\haarcascade_frontalface_default.xml");
         CascadeClassifier mouthHaar =new CascadeClassifier("haarcascades\\haarcascade_mcs_mouth.xml");
@@ -42,7 +41,9 @@ namespace LipsLocate
             InitializeComponent();
             try
             {
-                _capture = new Capture(WebCamIndex);
+                rs232form.mainForm = this;
+
+                _capture = new Capture(DefaultWebCamIndex);
                 _capture.ImageGrabbed += ProcessFrame;
 
                 _capture.Start();
@@ -63,34 +64,31 @@ namespace LipsLocate
         static long FpsTest = 0;
         MCvFont cvFont = new MCvFont(Emgu.CV.CvEnum.FONT.CV_FONT_HERSHEY_COMPLEX, 1, 1);
         MCvFont cvFontBack = new MCvFont(Emgu.CV.CvEnum.FONT.CV_FONT_HERSHEY_COMPLEX, 0.5, 0.5);
-        private void ProcessFrame(object sender, EventArgs arg)
+        internal void ProcessFrame(object sender, EventArgs arg)
         {
             watch = Stopwatch.StartNew();
 
             Image<Bgr, Byte> frame = _capture.RetrieveBgrFrame();
             Image<Bgr, Byte> image = frame.Resize(captureImageBox.Size.Width, captureImageBox.Size.Height, Emgu.CV.CvEnum.INTER.CV_INTER_LINEAR);
+            Image<Bgr, Byte> srcImage = image.Copy();
 
-            switch (curType)
+
+            //face Detector
+            Rectangle faceROI, mouthROI;
+            mouthDetector(image, out faceROI, out mouthROI);
+            //20140603 追加嘴唇高度分界線
+            for (int i = 0, length = image.Height; i < length; i += length / 10)
             {
-                case TestType.LipsLocate:
-
-                    //face Detector
-                    mouthDetector(image);
-                    //20140603 追加嘴唇高度分界線
-                    for (int i = 0, length = image.Height; i < length; i+=length / 10)
-                    {
-                        image.Draw(new LineSegment2D(new Point(0,i),new Point(image.Width,i)),new Bgr(100,100,100),1);
-                    }
-
-                    //Blue Detector
-                    BlueDetector(image);
-
-                    captureImageBox.Image = image;
-                    break;
-
-                default:
-                    break;
+                image.Draw(new LineSegment2D(new Point(0, i), new Point(image.Width, i)), new Bgr(100, 100, 100), 1);
             }
+
+
+            //Blue Detector
+            //BlueDetector(image);
+            Image<Bgr, Byte> blueDetectImage = BlueDetector(srcImage,image, faceROI, mouthROI); 
+            //captureImageBox.Image = image;
+            captureImageBox.Image = image;
+
 
             if (FpsTest >= 1000)
             {
@@ -105,22 +103,87 @@ namespace LipsLocate
             image.Draw(strMousePos, ref cvFontBack, new Point(mousePos.X, mousePos.Y + 30), new Bgr(255, 255, 255));
             FpsTest += watch.ElapsedMilliseconds;
 
+
+            rs232form.RS232_DataSend();
         }
 
-        private void BlueDetector(Image<Bgr, byte> image)
+        private Image<Bgr, byte> BlueDetector(Image<Bgr, byte> image, Image<Bgr, byte> drawImage, Rectangle faceROI, Rectangle mouthROI)
         {
             List<Rectangle> blues = new List<Rectangle>();
             Image<Ycc, byte> yccImg = image.Convert<Ycc, byte>();
             Image<Gray, byte> cbImg = yccImg[1];
 
+            Rectangle ThresROI = faceROI;
+            ThresROI.Height += 50;
+            cbImg.ROI = ThresROI;
+            Image<Gray, byte> greyThreshImg = cbImg.CopyBlank();
+            int greyThreshValue = (int)Emgu.CV.CvInvoke.cvThreshold(cbImg.Ptr, greyThreshImg.Ptr, 0d, 255d,
+                Emgu.CV.CvEnum.THRESH.CV_THRESH_BINARY_INV | Emgu.CV.CvEnum.THRESH.CV_THRESH_OTSU);
+
+            //center blue Detect
+            int widthStep = 20;
+            int HeightOffset = 50;
+
+            Rectangle centerROI = faceROI;
+            if (faceROI.Width != 0)
+            {
+                centerROI = new Rectangle(faceROI.Width / 2 - widthStep, HeightOffset, widthStep * 2, faceROI.Height);
+            }
+            greyThreshImg.ROI = centerROI;
+
+            Rectangle drawCenterROI = centerROI;
+            drawCenterROI.Offset(faceROI.Location);
+            drawImage.Draw(drawCenterROI, new Bgr(200, 150, 0), 2);
+
+            int blobMaxHeight = 10;
+            Rectangle blobMaxRectangle = new Rectangle(0,0,0,0);
+            Emgu.CV.Cvb.CvBlobs resultingImgBlobs = new Emgu.CV.Cvb.CvBlobs();
+            Emgu.CV.Cvb.CvBlobDetector bDetect = new Emgu.CV.Cvb.CvBlobDetector();
+            uint numWebcamBlobsFound = bDetect.Detect(greyThreshImg, resultingImgBlobs);
+            greyThreshImg.ROI = new Rectangle(0, 0, 0, 0);
+            //取得最高的BLUB
+            foreach (Emgu.CV.Cvb.CvBlob item in resultingImgBlobs.Values)
+            {
+                if (item.BoundingBox.Height > blobMaxHeight)
+                {
+                    blobMaxHeight = item.BoundingBox.Height;
+                    blobMaxRectangle = item.BoundingBox;
+                }   
+            }
 
 
+            //TEST HIT
+            if (blobMaxRectangle.IntersectsWith(mouthROI))
+            {
+                //spoon Height OK
+                rs232form.spoonState = '0';
+            }
+            else if (blobMaxRectangle.Top < mouthROI.Top)
+            {
+                //too high
+                rs232form.spoonState = '1';
+            }
+            else
+            {
+                //too low
+                rs232form.spoonState = '2';
+            }
+
+            //draw spoon
+            blobMaxRectangle.Offset(drawCenterROI.Location);
+            drawImage.Draw(blobMaxRectangle, new Bgr(0, 255, 0), 2);
+
+
+            return greyThreshImg.Convert<Bgr, byte>();
         }
 
-        private void mouthDetector(Image<Bgr, Byte> image)
+        private void mouthDetector(Image<Bgr, Byte> image, out Rectangle faceROI, out Rectangle mouthROI)
         {
             List<Rectangle> faces = new List<Rectangle>();
             List<Rectangle> mouths = new List<Rectangle>();
+
+            faceROI = new Rectangle(0, 0, 0, 0);
+            mouthROI = new Rectangle(0, 0, 0, 0);
 
             DetectFace(image, faces, mouths);
             //FaceDetection.DetectFace.Detect(image, "haarcascades\\haarcascade_frontalface_default.xml", "haarcascades\\haarcascade_eye.xml", faces, eyes, out detectionTime);
@@ -130,6 +193,7 @@ namespace LipsLocate
                   rs232form.FaceMinHeight < face.Height && face.Height < rs232form.FaceMaxHeight)
                 {
                     image.Draw(face, new Bgr(Color.Red), 2);
+                    faceROI = face;
                 }
                 else
                 {
@@ -140,14 +204,16 @@ namespace LipsLocate
             foreach (Rectangle mouth in mouths)
             {
                 image.Draw(mouth, new Bgr(Color.Blue), 1);
-
+                mouthROI = mouth;
 
                 string strPos =
                     "pos=(" + (mouth.Left + (mouth.Width / 2.0)) + "," +
                                 (mouth.Top + (mouth.Height / 2.0)) + ")";
 
                 //20140603 追加, 嘴唇高度(分為10級高度)
-                strPos += ", Level = " + (int)(10 * (mouth.Top + (mouth.Height / 2.0)) / (double)image.Height);
+                int mouthLevel = (int)(10 * (mouth.Top + (mouth.Height / 2.0)) / (double)image.Height);
+                strPos += ", Level = " + mouthLevel;
+                rs232form.mouthHeight = mouthLevel.ToString()[0];
 
                 //image.Draw(strPos, ref cvFont, new Point(0, 30 + curMouthNumber * 30), new Bgr(0, 0, 0));
                 image.Draw(strPos, ref cvFontBack, new Point(0, 30 + curMouthNumber * 30), new Bgr(255, 255, 255));
@@ -217,12 +283,14 @@ namespace LipsLocate
 
                         mouthRectLast.Offset(f.X, f.Y + helfHeight);
                         mouths.Add(mouthRectLast);
+
+                        //if get mouth then return
+                        return;
                     }
                 }
             }
         }
 
-        TestType curType = (TestType)0;
         int showMode = 1;
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -281,8 +349,4 @@ namespace LipsLocate
 
     }
 
-    enum TestType
-    {
-        LipsLocate, FoodBlob
-    }
 }

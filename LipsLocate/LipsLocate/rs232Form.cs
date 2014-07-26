@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Emgu.CV;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -14,6 +15,26 @@ namespace LipsLocate
     {
         internal System.IO.Ports.SerialPort serialport = new System.IO.Ports.SerialPort();//宣告連接埠
         internal bool serialportopen = false;
+
+        internal char mouthHeight = '0';
+        internal char spoonState = '0';
+
+        int RS232UpdateTime = 500; //狀態更頻率與RS232傳送頻率(ms)
+        System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+
+
+        internal void RS232_DataSend()
+        {
+            if (serialportopen)
+            {
+                if (sw.IsRunning == false) sw.Start();
+                if (serialport.IsOpen == true && sw.ElapsedMilliseconds >= RS232UpdateTime)
+                {
+                    sw.Reset();
+                    serialport.Write(new char[]{'H' , mouthHeight , 'S' ,spoonState}, 0, 4);
+                }
+            }
+        }
 
         public rs232Form()
         {
@@ -94,5 +115,27 @@ namespace LipsLocate
             FaceMinHeight = int.Parse(textBox3.Text);
             FaceMaxHeight = int.Parse(textBox4.Text);
         }
+
+        internal Form1 mainForm;
+        private void button2_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                mainForm._capture.Dispose();
+                mainForm._capture.Stop();
+                mainForm._capture.ImageGrabbed -= mainForm.ProcessFrame;
+                mainForm._capture = new Capture(int.Parse(textBox5.Text));
+                mainForm._capture.ImageGrabbed += mainForm.ProcessFrame;
+                mainForm._capture.Start();
+
+
+            }
+            catch (Exception)
+            {
+                MessageBox.Show(e.ToString());
+            }
+        }
+
+
     }
 }
