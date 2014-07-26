@@ -465,6 +465,7 @@ namespace BoxSetting
             //-----------------------------------------------
 
             XmlDocument doc = new XmlDocument();
+            //doc.Save("Plate.xml");
             doc.Load("Plate.xml");
             if (doc != null)
             {
