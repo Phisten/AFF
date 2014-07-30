@@ -20,6 +20,8 @@ namespace LipsLocate
         //RS232
         rs232Form rs232form = new rs232Form();
 
+        //mouth
+        Rectangle mouthLastROI = new Rectangle(0, 0, 0, 0);
 
         //640*480
         int DefaultWebCamIndex = 0;
@@ -85,7 +87,8 @@ namespace LipsLocate
 
             //Blue Detector
             //BlueDetector(image);
-            Image<Bgr, Byte> blueDetectImage = BlueDetector(srcImage,image, faceROI, mouthROI); 
+            Image<Bgr, Byte> blueDetectImage = BlueDetector(srcImage,image, faceROI, mouthROI);
+
             //captureImageBox.Image = image;
             captureImageBox.Image = image;
 
@@ -148,17 +151,30 @@ namespace LipsLocate
                 {
                     blobMaxHeight = item.BoundingBox.Height;
                     blobMaxRectangle = item.BoundingBox;
-                }   
+                }
             }
 
 
+
+            if (blobMaxRectangle.Top == 0 && mouthROI.Top != 0)
+            {
+                mouthLastROI = mouthROI;
+            }
+            drawImage.Draw(mouthLastROI, new Bgr(Color.Coral), 2);
+
+
+            //draw spoon
+            blobMaxRectangle.Offset(drawCenterROI.Location);
+            drawImage.Draw(blobMaxRectangle, new Bgr(0, 255, 0), 2);
+            drawImage.Draw("spoonState=" + rs232form.spoonState, ref cvFont, blobMaxRectangle.Location, new Bgr(Color.Coral));
+
             //TEST HIT
-            if (blobMaxRectangle.IntersectsWith(mouthROI))
+            if (blobMaxRectangle.IntersectsWith(mouthLastROI))
             {
                 //spoon Height OK
                 rs232form.spoonState = '0';
             }
-            else if (blobMaxRectangle.Top < mouthROI.Top)
+            else if (blobMaxRectangle.Top < mouthLastROI.Top)
             {
                 //too high
                 rs232form.spoonState = '1';
@@ -169,9 +185,8 @@ namespace LipsLocate
                 rs232form.spoonState = '2';
             }
 
-            //draw spoon
-            blobMaxRectangle.Offset(drawCenterROI.Location);
-            drawImage.Draw(blobMaxRectangle, new Bgr(0, 255, 0), 2);
+
+
 
 
             return greyThreshImg.Convert<Bgr, byte>();

@@ -154,6 +154,7 @@
             this.Controls.Add(this.button1);
             this.Name = "rs232Form";
             this.Text = "rs232Form";
+            this.Load += new System.EventHandler(this.rs232Form_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 

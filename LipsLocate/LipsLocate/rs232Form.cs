@@ -136,6 +136,15 @@ namespace LipsLocate
             }
         }
 
+        private void rs232Form_Load(object sender, EventArgs e)
+        {
+            comboBox1.Items.Clear();
+            foreach (string com in System.IO.Ports.SerialPort.GetPortNames())//取得所有可用的連接埠
+            {
+                comboBox1.Items.Add(com);
+            }
+        }
+
 
     }
 }
