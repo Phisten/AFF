@@ -24,10 +24,3 @@ D:\Github\AFF\CvTest\bin\x64\Debug\Emgu.CV.VideoStab.xml
 D:\Github\AFF\CvTest\bin\x64\Debug\Emgu.Util.xml
 D:\Github\AFF\CvTest\obj\x64\Debug\CvTest.exe
 D:\Github\AFF\CvTest\obj\x64\Debug\CvTest.pdb
-D:\Github\AFF\CvTest\bin\x64\Debug\Emgu.CV.pdb
-D:\Github\AFF\CvTest\bin\x64\Debug\Emgu.CV.GPU.pdb
-D:\Github\AFF\CvTest\bin\x64\Debug\Emgu.CV.UI.pdb
-D:\Github\AFF\CvTest\bin\x64\Debug\Emgu.Util.pdb
-D:\Github\AFF\CvTest\bin\x64\Debug\ZedGraph.xml
-D:\Github\AFF\CvTest\bin\x64\Debug\zh-CN\Emgu.CV.UI.resources.dll
-D:\Github\AFF\CvTest\bin\x64\Debug\zh-CN\ZedGraph.resources.dll

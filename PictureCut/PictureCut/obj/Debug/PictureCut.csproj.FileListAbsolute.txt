@@ -1,0 +1,9 @@
+c:\users\kira\documents\visual studio 2012\Projects\PictureCut\PictureCut\bin\Debug\PictureCut.exe.config
+c:\users\kira\documents\visual studio 2012\Projects\PictureCut\PictureCut\obj\Debug\PictureCut.csprojResolveAssemblyReference.cache
+c:\users\kira\documents\visual studio 2012\Projects\PictureCut\PictureCut\obj\Debug\PictureCut.Form1.resources
+c:\users\kira\documents\visual studio 2012\Projects\PictureCut\PictureCut\obj\Debug\PictureCut.Properties.Resources.resources
+c:\users\kira\documents\visual studio 2012\Projects\PictureCut\PictureCut\obj\Debug\PictureCut.csproj.GenerateResource.Cache
+c:\users\kira\documents\visual studio 2012\Projects\PictureCut\PictureCut\bin\Debug\PictureCut.exe
+c:\users\kira\documents\visual studio 2012\Projects\PictureCut\PictureCut\bin\Debug\PictureCut.pdb
+c:\users\kira\documents\visual studio 2012\Projects\PictureCut\PictureCut\obj\Debug\PictureCut.exe
+c:\users\kira\documents\visual studio 2012\Projects\PictureCut\PictureCut\obj\Debug\PictureCut.pdb
