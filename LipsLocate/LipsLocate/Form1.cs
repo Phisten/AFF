@@ -116,6 +116,9 @@ namespace LipsLocate
             Image<Ycc, byte> yccImg = image.Convert<Ycc, byte>();
             Image<Gray, byte> cbImg = yccImg[1];
 
+            int RoiType = 0;
+            //type 0 臉部ROI優先   type1 = 整體ROI
+
             Rectangle ThresROI = faceROI;
             ThresROI.Height += 50;
             cbImg.ROI = ThresROI;
