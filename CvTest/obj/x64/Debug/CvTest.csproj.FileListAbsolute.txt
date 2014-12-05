@@ -24,3 +24,6 @@ D:\Github\AFF\CvTest\bin\x64\Debug\Emgu.CV.VideoStab.xml
 D:\Github\AFF\CvTest\bin\x64\Debug\Emgu.Util.xml
 D:\Github\AFF\CvTest\obj\x64\Debug\CvTest.exe
 D:\Github\AFF\CvTest\obj\x64\Debug\CvTest.pdb
+C:\Users\Kira\Dropbox\AFF\CvTest\bin\x64\Debug\CvTest.exe.config
+C:\Users\Kira\Dropbox\AFF\CvTest\obj\x64\Debug\CvTest.exe
+C:\Users\Kira\Dropbox\AFF\CvTest\obj\x64\Debug\CvTest.pdb

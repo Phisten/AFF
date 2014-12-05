@@ -116,9 +116,6 @@ namespace LipsLocate
             Image<Ycc, byte> yccImg = image.Convert<Ycc, byte>();
             Image<Gray, byte> cbImg = yccImg[1];
 
-            int RoiType = 0;
-            //type 0 臉部ROI優先   type1 = 整體ROI
-
             Rectangle ThresROI = faceROI;
             ThresROI.Height += 50;
             cbImg.ROI = ThresROI;
@@ -167,6 +164,8 @@ namespace LipsLocate
 
 
             //draw spoon
+
+
             blobMaxRectangle.Offset(drawCenterROI.Location);
             drawImage.Draw(blobMaxRectangle, new Bgr(0, 255, 0), 2);
             drawImage.Draw("spoonState=" + rs232form.spoonState, ref cvFont, blobMaxRectangle.Location, new Bgr(Color.Coral));

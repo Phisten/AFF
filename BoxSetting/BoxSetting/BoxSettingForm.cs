@@ -102,6 +102,7 @@ namespace BoxSetting
         MCvFont cvFontFoodPos = new MCvFont(Emgu.CV.CvEnum.FONT.CV_FONT_HERSHEY_SIMPLEX, 0.3d, 0.3d);
         MCvFont cvFontBack = new MCvFont(Emgu.CV.CvEnum.FONT.CV_FONT_HERSHEY_COMPLEX, 0.5d, 0.5d);
         Image<Bgr, Byte> frame;
+        int firstFrame = 0;
         private void ProcessFrame(object sender, EventArgs arg)
         {
             if (0 == (int)curType)
@@ -118,6 +119,7 @@ namespace BoxSetting
             {
                 //尋找餐盤位置
                 PlateDetector(srcImage, ref outputImage, out threshImage);
+
             }
 
             partitionFoodArea = new List<int>();
@@ -141,6 +143,11 @@ namespace BoxSetting
 
                     //縮小至80%子區域範圍
                     Rectangle curSubROI = RectangleCenterScale(subRoiList[i], 0.8d, 0.8d);
+                    if (firstFrame <= i && i < 4)
+                    {
+                        srcImage.Copy(curSubROI).Save(@"C:\img\" + (i+1).ToString() + ".jpg");
+                        firstFrame++;
+                    }
 
                     int curCenterFoodArea; //已無效
                     //檢測指定區域內的食物面積,會回傳食物blob與轉換後的檢測影像與食物所含面積
@@ -334,16 +341,21 @@ namespace BoxSetting
         /// <summary>將子區域按照由上方為第1個 右下方為第2 左下方為第3的順序排序處理. 子區塊剛好為4個時才排序</summary>
         private void SubRoiSort(ref List<Rectangle> subRoiList)
         {
+            //if (subRoiList.Count == 4)
             if (subRoiList.Count == 4)
             {
-                //將X+Y後由大到小排序
-                subRoiList.Sort(new Comparison<Rectangle>((r1, r2) => r1.X + r1.Y - r2.X - r2.Y));   
-                //去除左上角子區塊
-                subRoiList.RemoveAt(0);
-                //右下與左下對換
-                Rectangle tmp = subRoiList[1];
-                subRoiList[1] = subRoiList[2];
-                subRoiList[2] = tmp;
+                ////將X+Y後由大到小排序
+                // 改為由Y小至大排序
+                //subRoiList.Sort(new Comparison<Rectangle>((r1, r2) => r1.X + r1.Y - r2.X - r2.Y));
+                subRoiList.Sort(new Comparison<Rectangle>((r1, r2) => r2.Y - r1.Y));   
+
+
+                ////去除左上角子區塊
+                //subRoiList.RemoveAt(0);
+                ////右下與左下對換
+                //Rectangle tmp = subRoiList[1];
+                //subRoiList[1] = subRoiList[2];
+                //subRoiList[2] = tmp;
             }
         }
 
@@ -370,7 +382,7 @@ namespace BoxSetting
                 int centerFoodAreaRate = 0;
 
 
-                if (i % 3 == 0)
+                if (i % 3 == 0 && i < 9)
                 {
                     //更新食物訊息於訊息
                     int curfoodareaTest = partitionFoodArea[i] + partitionFoodArea[i + 1] + partitionFoodArea[i + 2];
@@ -1238,6 +1250,11 @@ namespace BoxSetting
         private void backgroundWorker1_DoWork_1(object sender, DoWorkEventArgs e)
         {
 
+        }
+
+        private void button13_Click(object sender, EventArgs e)
+        {
+         
         }
 
        

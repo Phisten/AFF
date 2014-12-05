@@ -383,7 +383,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(987, 552);
+            this.ClientSize = new System.Drawing.Size(1059, 552);
             this.Controls.Add(this.richTextBox6);
             this.Controls.Add(this.label10);
             this.Controls.Add(this.button12);
