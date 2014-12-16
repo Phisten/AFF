@@ -67,6 +67,9 @@ namespace LipsLocate
                     //    this.backgroundWorker1.RunWorkerAsync();
                     //}
                     //button3.Text = "中斷";
+                    byte[] data = Convert.FromBase64String(serialport.ReadLine());
+                    textBox6.Text = Encoding.Unicode.GetString(data);
+
                 }
                 catch (Exception ex)
                 {
