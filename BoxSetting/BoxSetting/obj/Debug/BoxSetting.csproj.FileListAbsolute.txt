@@ -1,1 +1,2 @@
 D:\Github\AFF\BoxSetting\BoxSetting\bin\Debug\BoxSetting.exe.config
+G:\AFF\BoxSetting\BoxSetting\bin\Debug\BoxSetting.exe.config

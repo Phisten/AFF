@@ -22,6 +22,7 @@ namespace LipsLocate
 
         //mouth
         Rectangle mouthLastROI = new Rectangle(0, 0, 0, 0);
+        Rectangle faceLastROI = new Rectangle();
 
         //640*480
         int DefaultWebCamIndex = 0;
@@ -66,6 +67,7 @@ namespace LipsLocate
         static long FpsTest = 0;
         MCvFont cvFont = new MCvFont(Emgu.CV.CvEnum.FONT.CV_FONT_HERSHEY_COMPLEX, 1, 1);
         MCvFont cvFontBack = new MCvFont(Emgu.CV.CvEnum.FONT.CV_FONT_HERSHEY_COMPLEX, 0.5, 0.5);
+
         internal void ProcessFrame(object sender, EventArgs arg)
         {
             watch = Stopwatch.StartNew();
@@ -83,11 +85,18 @@ namespace LipsLocate
             {
                 image.Draw(new LineSegment2D(new Point(0, i), new Point(image.Width, i)), new Bgr(100, 100, 100), 1);
             }
-
+            if (faceROI.Width != 0)
+                faceLastROI = faceROI;
 
             //Blue Detector
             //BlueDetector(image);
-            Image<Bgr, Byte> blueDetectImage = BlueDetector(srcImage,image, faceROI, mouthROI);
+            //測試藍色湯匙的位置
+            Image<Bgr, Byte> blueDetectImage = BlueDetector(srcImage, image, faceLastROI, mouthROI);
+
+
+
+            //嘴唇最後位置
+            image.Draw(mouthLastROI, new Bgr(Color.Coral), 2);
 
             //captureImageBox.Image = image;
             captureImageBox.Image = image;
@@ -138,29 +147,22 @@ namespace LipsLocate
             drawCenterROI.Offset(faceROI.Location);
             drawImage.Draw(drawCenterROI, new Bgr(200, 150, 0), 2);
 
-            int blobMaxHeight = 10;
+            int blobTop = 999999;
             Rectangle blobMaxRectangle = new Rectangle(0,0,0,0);
             Emgu.CV.Cvb.CvBlobs resultingImgBlobs = new Emgu.CV.Cvb.CvBlobs();
             Emgu.CV.Cvb.CvBlobDetector bDetect = new Emgu.CV.Cvb.CvBlobDetector();
             uint numWebcamBlobsFound = bDetect.Detect(greyThreshImg, resultingImgBlobs);
+            resultingImgBlobs.FilterByArea(50, 10000);
             greyThreshImg.ROI = new Rectangle(0, 0, 0, 0);
             //取得最高的BLUB
             foreach (Emgu.CV.Cvb.CvBlob item in resultingImgBlobs.Values)
             {
-                if (item.BoundingBox.Height > blobMaxHeight)
+                if (item.BoundingBox.Top < blobTop)
                 {
-                    blobMaxHeight = item.BoundingBox.Height;
+                    blobTop = item.BoundingBox.Top;
                     blobMaxRectangle = item.BoundingBox;
                 }
             }
-
-
-
-            if (blobMaxRectangle.Top == 0 && mouthROI.Top != 0)
-            {
-                mouthLastROI = mouthROI;
-            }
-            drawImage.Draw(mouthLastROI, new Bgr(Color.Coral), 2);
 
 
             //draw spoon
@@ -181,7 +183,7 @@ namespace LipsLocate
                 //too high
                 rs232form.spoonState = '1';
             }
-            else
+            else //消失或比較低
             {
                 //too low
                 rs232form.spoonState = '2';
@@ -236,6 +238,11 @@ namespace LipsLocate
                 image.Draw(strPos, ref cvFontBack, new Point(0, 30 + curMouthNumber * 30), new Bgr(255, 255, 255));
 
                 curMouthNumber++;
+            }
+
+            if (mouthROI.Top != 0)
+            {
+                mouthLastROI = mouthROI;
             }
         }
 

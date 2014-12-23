@@ -103,8 +103,11 @@ namespace BoxSetting
         MCvFont cvFontBack = new MCvFont(Emgu.CV.CvEnum.FONT.CV_FONT_HERSHEY_COMPLEX, 0.5d, 0.5d);
         Image<Bgr, Byte> frame;
         int firstFrame = 0;
+        int ImageSaveElapsed = 5000; //存餐盤照片時間間隔(ms
+        Stopwatch swImageSaveTimer = new Stopwatch();
         private void ProcessFrame(object sender, EventArgs arg)
         {
+
             if (0 == (int)curType)
             frame = _capture.RetrieveBgrFrame();
             Image<Bgr, Byte> srcImage = frame.Resize(captureImageBox.Size.Width, captureImageBox.Size.Height, Emgu.CV.CvEnum.INTER.CV_INTER_LINEAR);
@@ -143,14 +146,15 @@ namespace BoxSetting
 
                     //縮小至80%子區域範圍
                     Rectangle curSubROI = RectangleCenterScale(subRoiList[i], 0.8d, 0.8d);
-                    
-                    if (firstFrame <= i && i < 4)
+
+                    if (firstFrame <= i && i < 4 && swImageSaveTimer.ElapsedMilliseconds > ImageSaveElapsed)
                     {
                         Image<Bgr, byte> viewImage = srcImage.Copy(curSubROI).Resize(2d, Emgu.CV.CvEnum.INTER.CV_INTER_LINEAR);
                         viewImage.Save(@"C:\img\" + (i + 1).ToString() + ".jpg");
                        // Image<Bgr, byte> viewImage2 = srcImage.Copy(curSubROI);
                        // viewImage2.Save(@"C:\img\" + (i + 1).ToString() + "src.jpg");
                         firstFrame++;
+
                     }
 
                     int curCenterFoodArea; //已無效
@@ -189,6 +193,13 @@ namespace BoxSetting
 
                     foodThreshImageList.Add(curThresholdImage);
                     foodRoiList.Add(curFoodRoiList);
+                }
+
+                //刷新存照片時間
+                if (swImageSaveTimer.IsRunning == false || swImageSaveTimer.ElapsedMilliseconds > ImageSaveElapsed)
+                {
+                    swImageSaveTimer.Restart();
+                    firstFrame = 0;
                 }
             }
             List<double> foodAreaRate = new List<double>();

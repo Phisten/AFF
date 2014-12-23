@@ -69,7 +69,7 @@
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(100, 22);
             this.textBox1.TabIndex = 2;
-            this.textBox1.Text = "170";
+            this.textBox1.Text = "100";
             this.textBox1.TextChanged += new System.EventHandler(this.UpdateFaceThreshold_TextChanged);
             // 
             // textBox2
@@ -78,7 +78,7 @@
             this.textBox2.Name = "textBox2";
             this.textBox2.Size = new System.Drawing.Size(100, 22);
             this.textBox2.TabIndex = 2;
-            this.textBox2.Text = "220";
+            this.textBox2.Text = "300";
             this.textBox2.TextChanged += new System.EventHandler(this.UpdateFaceThreshold_TextChanged);
             // 
             // textBox3
@@ -87,7 +87,7 @@
             this.textBox3.Name = "textBox3";
             this.textBox3.Size = new System.Drawing.Size(100, 22);
             this.textBox3.TabIndex = 2;
-            this.textBox3.Text = "180";
+            this.textBox3.Text = "100";
             this.textBox3.TextChanged += new System.EventHandler(this.UpdateFaceThreshold_TextChanged);
             // 
             // textBox4
@@ -96,7 +96,7 @@
             this.textBox4.Name = "textBox4";
             this.textBox4.Size = new System.Drawing.Size(100, 22);
             this.textBox4.TabIndex = 2;
-            this.textBox4.Text = "235";
+            this.textBox4.Text = "400";
             this.textBox4.TextChanged += new System.EventHandler(this.UpdateFaceThreshold_TextChanged);
             // 
             // label1
