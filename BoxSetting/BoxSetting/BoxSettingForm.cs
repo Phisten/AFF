@@ -356,13 +356,12 @@ namespace BoxSetting
         /// <summary>將子區域按照由上方為第1個 右下方為第2 左下方為第3的順序排序處理. 子區塊剛好為4個時才排序</summary>
         private void SubRoiSort(ref List<Rectangle> subRoiList)
         {
+            subRoiList.Sort(new Comparison<Rectangle>((r1, r2) => r1.Y - r2.Y));   
             //if (subRoiList.Count == 4)
-            if (subRoiList.Count == 4)
-            {
+            //{
                 ////將X+Y後由大到小排序
                 // 改為由Y小至大排序
                 //subRoiList.Sort(new Comparison<Rectangle>((r1, r2) => r1.X + r1.Y - r2.X - r2.Y));
-                subRoiList.Sort(new Comparison<Rectangle>((r1, r2) => r2.Y - r1.Y));   
 
 
                 ////去除左上角子區塊
@@ -371,7 +370,7 @@ namespace BoxSetting
                 //Rectangle tmp = subRoiList[1];
                 //subRoiList[1] = subRoiList[2];
                 //subRoiList[2] = tmp;
-            }
+            //}
         }
 
 
