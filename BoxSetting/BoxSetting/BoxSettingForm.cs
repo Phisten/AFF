@@ -29,7 +29,7 @@ namespace BoxSetting
         Emgu.CV.CvEnum.THRESH WhiteOrBlack = Emgu.CV.CvEnum.THRESH.CV_THRESH_BINARY;
         Emgu.CV.CvEnum.THRESH SubWhiteOrBlack = Emgu.CV.CvEnum.THRESH.CV_THRESH_BINARY_INV;
 
-        //delegate void pri
+        //delegate void pri 
         delegate void RefreshListBox(BoxSettingForm thisForm);
         RefreshListBox refreshListBox = ReViewListBoxStatic;
         
@@ -143,9 +143,13 @@ namespace BoxSetting
 
                     //縮小至80%子區域範圍
                     Rectangle curSubROI = RectangleCenterScale(subRoiList[i], 0.8d, 0.8d);
+                    
                     if (firstFrame <= i && i < 4)
                     {
-                        srcImage.Copy(curSubROI).Save(@"C:\img\" + (i+1).ToString() + ".jpg");
+                        Image<Bgr, byte> viewImage = srcImage.Copy(curSubROI).Resize(2d, Emgu.CV.CvEnum.INTER.CV_INTER_LINEAR);
+                        viewImage.Save(@"C:\img\" + (i + 1).ToString() + ".jpg");
+                       // Image<Bgr, byte> viewImage2 = srcImage.Copy(curSubROI);
+                       // viewImage2.Save(@"C:\img\" + (i + 1).ToString() + "src.jpg");
                         firstFrame++;
                     }
 
@@ -426,6 +430,11 @@ namespace BoxSetting
         Boolean light = false, serialportopen = false;
         private Color[] MsgTypeColor = { Color.Blue, Color.Green, Color.Black, Color.Orange, Color.Red };
         public enum MsgType { System, User, Normal, Warning, Error };
+        //第二組RS232宣告
+        System.IO.Ports.SerialPort serialport2 = new System.IO.Ports.SerialPort();//宣告連接埠
+        Boolean light2 = false, serialport2open = false;
+        //private Color[] MsgTypeColor = { Color.Blue, Color.Green, Color.Black, Color.Orange, Color.Red };
+        //public enum MsgType { System, User, Normal, Warning, Error };
 
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -473,6 +482,14 @@ namespace BoxSetting
             foreach (string com in System.IO.Ports.SerialPort.GetPortNames())//取得所有可用的連接埠
             {
                 comboBox1.Items.Add(com);
+            }
+            //-----------第二組RS232用
+            backgroundWorker2.WorkerSupportsCancellation = true;
+            timer1.Interval = 500;
+            comboBox2.Items.Clear();
+            foreach (string com in System.IO.Ports.SerialPort.GetPortNames())//取得所有可用的連接埠
+            {
+                comboBox2.Items.Add(com);
             }
             //-----------------------------------------------
 
@@ -575,6 +592,62 @@ namespace BoxSetting
                 }
             }
         }
+        //------------------------------以下新建第二組RS232-------------------------------------------
+        private void button13_Click_1(object sender, EventArgs e)
+        {
+            if (serialportopen == false && !serialport2.IsOpen)
+            {
+                try
+                {
+                    //設定連接埠為9600、n、8、1、n
+                    serialport2.PortName = comboBox2.Text;
+                    serialport2.BaudRate = 9600;
+                    serialport2.DataBits = 8;
+                    serialport2.Parity = System.IO.Ports.Parity.None;
+                    serialport2.StopBits = System.IO.Ports.StopBits.One;
+                    serialport2.Encoding = Encoding.Default;//傳輸編碼方式
+                    serialport2.Open();
+                    timer1.Enabled = true;
+                    serialport2open = true;
+                    button12.Enabled = true;
+                    textBox1.Enabled = true;
+                    if (this.backgroundWorker1.IsBusy != true)
+                    {
+                        this.backgroundWorker1.WorkerReportsProgress = true;
+                        this.backgroundWorker1.RunWorkerAsync();
+                    }
+                    button13.Text = "中斷";
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.ToString());
+                }
+            }
+            else if (serialport2open == true && serialport2.IsOpen)
+            {
+                try
+                {
+                    serialport.Close();
+                    if (!serialport2.IsOpen)
+                    {
+                        serialport2open = false;
+                       // timer2.Enabled = false;
+                        button12.Enabled = false;
+                        //textBox2.Enabled = false;
+                        this.backgroundWorker2.WorkerReportsProgress = false;
+                        this.backgroundWorker2.CancelAsync();
+                        this.backgroundWorker2.Dispose();
+                        //ovalShape1.FillColor = Color.Red;
+
+                        button13.Text = "連線";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.ToString());
+                }
+            }
+        }
         private void timer1_Tick(object sender, EventArgs e)
         {
             if (light == false)
@@ -644,15 +717,15 @@ namespace BoxSetting
                 }
             }
         }
-        private void backgroundWorker1_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        private void backgroundWorker2_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             try
             {
                 if (serialport.BytesToRead != 0)
                 {
                     label9.Text = "緩衝區：" + serialport.BytesToRead.ToString();
-                    AddText(MsgType.System, "接收：" + serialport.ReadExisting() + "\r\n");
-                    serialport.DiscardInBuffer();
+                    AddText(MsgType.System, "接收：" + serialport2.ReadExisting() + "\r\n");
+                    serialport2.DiscardInBuffer();
                 }
             }
             catch (Exception)
@@ -660,14 +733,14 @@ namespace BoxSetting
         }
 
         private void AddText(MsgType msgtype, string msg)
-        {
+        {           
             richTextBox1.Invoke(new EventHandler(delegate
             {
-                richTextBox1.SelectedText = string.Empty;
-                richTextBox1.SelectionFont = new Font(richTextBox1.SelectionFont, FontStyle.Bold);
-                richTextBox1.SelectionColor = MsgTypeColor[(int)msgtype];
-                richTextBox1.AppendText(msg);
-                richTextBox1.ScrollToCaret();
+                richTextBox7.SelectedText = string.Empty;
+                richTextBox7.SelectionFont = new Font(richTextBox7.SelectionFont, FontStyle.Bold);
+                richTextBox7.SelectionColor = MsgTypeColor[(int)msgtype];
+                richTextBox7.AppendText(msg);
+                richTextBox7.ScrollToCaret();
             }));
         }
      

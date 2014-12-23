@@ -1,0 +1,17 @@
+C:\Users\Kira\Dropbox\AFF\BoxSetting\BoxSetting\bin\Release\BoxSetting.exe.config
+C:\Users\Kira\Dropbox\AFF\BoxSetting\BoxSetting\bin\Release\BoxSetting.exe
+C:\Users\Kira\Dropbox\AFF\BoxSetting\BoxSetting\bin\Release\BoxSetting.pdb
+C:\Users\Kira\Dropbox\AFF\BoxSetting\BoxSetting\bin\Release\Emgu.CV.dll
+C:\Users\Kira\Dropbox\AFF\BoxSetting\BoxSetting\bin\Release\Emgu.CV.UI.dll
+C:\Users\Kira\Dropbox\AFF\BoxSetting\BoxSetting\bin\Release\Emgu.Util.dll
+C:\Users\Kira\Dropbox\AFF\BoxSetting\BoxSetting\bin\Release\ZedGraph.dll
+C:\Users\Kira\Dropbox\AFF\BoxSetting\BoxSetting\bin\Release\Emgu.CV.xml
+C:\Users\Kira\Dropbox\AFF\BoxSetting\BoxSetting\bin\Release\Emgu.CV.UI.xml
+C:\Users\Kira\Dropbox\AFF\BoxSetting\BoxSetting\bin\Release\Emgu.Util.xml
+C:\Users\Kira\Dropbox\AFF\BoxSetting\BoxSetting\obj\Release\BoxSetting.csprojResolveAssemblyReference.cache
+C:\Users\Kira\Dropbox\AFF\BoxSetting\BoxSetting\obj\Release\BoxSetting.BoxSettingForm.resources
+C:\Users\Kira\Dropbox\AFF\BoxSetting\BoxSetting\obj\Release\BoxSetting.ImageForm.resources
+C:\Users\Kira\Dropbox\AFF\BoxSetting\BoxSetting\obj\Release\BoxSetting.Properties.Resources.resources
+C:\Users\Kira\Dropbox\AFF\BoxSetting\BoxSetting\obj\Release\BoxSetting.csproj.GenerateResource.Cache
+C:\Users\Kira\Dropbox\AFF\BoxSetting\BoxSetting\obj\Release\BoxSetting.exe
+C:\Users\Kira\Dropbox\AFF\BoxSetting\BoxSetting\obj\Release\BoxSetting.pdb

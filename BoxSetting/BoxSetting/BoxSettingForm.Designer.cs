@@ -64,6 +64,11 @@
             this.button12 = new System.Windows.Forms.Button();
             this.label10 = new System.Windows.Forms.Label();
             this.richTextBox6 = new System.Windows.Forms.RichTextBox();
+            this.label11 = new System.Windows.Forms.Label();
+            this.richTextBox7 = new System.Windows.Forms.RichTextBox();
+            this.button13 = new System.Windows.Forms.Button();
+            this.comboBox2 = new System.Windows.Forms.ComboBox();
+            this.backgroundWorker2 = new System.ComponentModel.BackgroundWorker();
             ((System.ComponentModel.ISupportInitialize)(this.captureImageBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
             this.SuspendLayout();
@@ -379,11 +384,49 @@
             this.richTextBox6.TabIndex = 38;
             this.richTextBox6.Text = "";
             // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(10, 440);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(39, 12);
+            this.label11.TabIndex = 40;
+            this.label11.Text = "label11";
+            // 
+            // richTextBox7
+            // 
+            this.richTextBox7.Location = new System.Drawing.Point(69, 440);
+            this.richTextBox7.Name = "richTextBox7";
+            this.richTextBox7.Size = new System.Drawing.Size(147, 28);
+            this.richTextBox7.TabIndex = 41;
+            this.richTextBox7.Text = "";
+            // 
+            // button13
+            // 
+            this.button13.Location = new System.Drawing.Point(168, 216);
+            this.button13.Name = "button13";
+            this.button13.Size = new System.Drawing.Size(75, 23);
+            this.button13.TabIndex = 42;
+            this.button13.Text = "button13";
+            this.button13.UseVisualStyleBackColor = true;
+            // 
+            // comboBox2
+            // 
+            this.comboBox2.FormattingEnabled = true;
+            this.comboBox2.Location = new System.Drawing.Point(56, 216);
+            this.comboBox2.Name = "comboBox2";
+            this.comboBox2.Size = new System.Drawing.Size(106, 20);
+            this.comboBox2.TabIndex = 43;
+            // 
             // BoxSettingForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1059, 552);
+            this.Controls.Add(this.comboBox2);
+            this.Controls.Add(this.button13);
+            this.Controls.Add(this.richTextBox7);
+            this.Controls.Add(this.label11);
             this.Controls.Add(this.richTextBox6);
             this.Controls.Add(this.label10);
             this.Controls.Add(this.button12);
@@ -469,6 +512,11 @@
         private System.Windows.Forms.Button button12;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.RichTextBox richTextBox6;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.RichTextBox richTextBox7;
+        private System.Windows.Forms.Button button13;
+        private System.Windows.Forms.ComboBox comboBox2;
+        private System.ComponentModel.BackgroundWorker backgroundWorker2;
     }
 }
 
