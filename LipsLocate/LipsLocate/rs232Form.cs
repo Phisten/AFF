@@ -31,7 +31,8 @@ namespace LipsLocate
                 if (serialport.IsOpen == true && sw.ElapsedMilliseconds >= RS232UpdateTime)
                 {
                     sw.Reset();
-                    serialport.Write(new char[]{'S' ,spoonState}, 0, 2);
+                    serialport.Write(new char[] { 'H', mouthHeight }, 0, 2);
+                    //serialport.Write(new char[]{'S' ,spoonState}, 0, 2);
                     //'H' , mouthHeight , 
                 }
             }
@@ -67,9 +68,6 @@ namespace LipsLocate
                     //    this.backgroundWorker1.RunWorkerAsync();
                     //}
                     //button3.Text = "中斷";
-                    byte[] data = Convert.FromBase64String(serialport.ReadLine());
-                    textBox6.Text = Encoding.Unicode.GetString(data);
-
                 }
                 catch (Exception ex)
                 {

@@ -39,7 +39,6 @@
             this.label2 = new System.Windows.Forms.Label();
             this.button2 = new System.Windows.Forms.Button();
             this.textBox5 = new System.Windows.Forms.TextBox();
-            this.textBox6 = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // button1
@@ -70,7 +69,7 @@
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(100, 22);
             this.textBox1.TabIndex = 2;
-            this.textBox1.Text = "170";
+            this.textBox1.Text = "100";
             this.textBox1.TextChanged += new System.EventHandler(this.UpdateFaceThreshold_TextChanged);
             // 
             // textBox2
@@ -79,7 +78,7 @@
             this.textBox2.Name = "textBox2";
             this.textBox2.Size = new System.Drawing.Size(100, 22);
             this.textBox2.TabIndex = 2;
-            this.textBox2.Text = "220";
+            this.textBox2.Text = "300";
             this.textBox2.TextChanged += new System.EventHandler(this.UpdateFaceThreshold_TextChanged);
             // 
             // textBox3
@@ -88,7 +87,7 @@
             this.textBox3.Name = "textBox3";
             this.textBox3.Size = new System.Drawing.Size(100, 22);
             this.textBox3.TabIndex = 2;
-            this.textBox3.Text = "180";
+            this.textBox3.Text = "100";
             this.textBox3.TextChanged += new System.EventHandler(this.UpdateFaceThreshold_TextChanged);
             // 
             // textBox4
@@ -97,7 +96,7 @@
             this.textBox4.Name = "textBox4";
             this.textBox4.Size = new System.Drawing.Size(100, 22);
             this.textBox4.TabIndex = 2;
-            this.textBox4.Text = "235";
+            this.textBox4.Text = "400";
             this.textBox4.TextChanged += new System.EventHandler(this.UpdateFaceThreshold_TextChanged);
             // 
             // label1
@@ -138,19 +137,11 @@
             this.textBox5.TabIndex = 6;
             this.textBox5.Text = "0";
             // 
-            // textBox6
-            // 
-            this.textBox6.Location = new System.Drawing.Point(58, 155);
-            this.textBox6.Name = "textBox6";
-            this.textBox6.Size = new System.Drawing.Size(100, 22);
-            this.textBox6.TabIndex = 7;
-            // 
             // rs232Form
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(361, 220);
-            this.Controls.Add(this.textBox6);
             this.Controls.Add(this.textBox5);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.label2);
@@ -182,6 +173,5 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.TextBox textBox5;
-        private System.Windows.Forms.TextBox textBox6;
     }
 }

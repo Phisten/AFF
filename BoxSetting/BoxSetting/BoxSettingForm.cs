@@ -29,7 +29,10 @@ namespace BoxSetting
         Emgu.CV.CvEnum.THRESH WhiteOrBlack = Emgu.CV.CvEnum.THRESH.CV_THRESH_BINARY;
         Emgu.CV.CvEnum.THRESH SubWhiteOrBlack = Emgu.CV.CvEnum.THRESH.CV_THRESH_BINARY_INV;
 
-        //delegate void pri
+        //int DefaultSubThreshold = 115;
+        int DefaultSubThreshold = 115;
+
+        //delegate void pri 
         delegate void RefreshListBox(BoxSettingForm thisForm);
         RefreshListBox refreshListBox = ReViewListBoxStatic;
         
@@ -103,8 +106,11 @@ namespace BoxSetting
         MCvFont cvFontBack = new MCvFont(Emgu.CV.CvEnum.FONT.CV_FONT_HERSHEY_COMPLEX, 0.5d, 0.5d);
         Image<Bgr, Byte> frame;
         int firstFrame = 0;
+        int ImageSaveElapsed = 5000; //存餐盤照片時間間隔(ms
+        Stopwatch swImageSaveTimer = new Stopwatch();
         private void ProcessFrame(object sender, EventArgs arg)
         {
+
             if (0 == (int)curType)
             frame = _capture.RetrieveBgrFrame();
             Image<Bgr, Byte> srcImage = frame.Resize(captureImageBox.Size.Width, captureImageBox.Size.Height, Emgu.CV.CvEnum.INTER.CV_INTER_LINEAR);
@@ -143,10 +149,15 @@ namespace BoxSetting
 
                     //縮小至80%子區域範圍
                     Rectangle curSubROI = RectangleCenterScale(subRoiList[i], 0.8d, 0.8d);
-                    if (firstFrame <= i && i < 4)
+
+                    if (firstFrame <= i && i < 4 && swImageSaveTimer.ElapsedMilliseconds > ImageSaveElapsed)
                     {
-                        srcImage.Copy(curSubROI).Save(@"C:\img\" + (i+1).ToString() + ".jpg");
+                        Image<Bgr, byte> viewImage = srcImage.Copy(curSubROI).Resize(2d, Emgu.CV.CvEnum.INTER.CV_INTER_LINEAR);
+                        viewImage.Save(@"C:\img\" + (i + 1).ToString() + ".jpg");
+                       // Image<Bgr, byte> viewImage2 = srcImage.Copy(curSubROI);
+                       // viewImage2.Save(@"C:\img\" + (i + 1).ToString() + "src.jpg");
                         firstFrame++;
+
                     }
 
                     int curCenterFoodArea; //已無效
@@ -185,6 +196,13 @@ namespace BoxSetting
 
                     foodThreshImageList.Add(curThresholdImage);
                     foodRoiList.Add(curFoodRoiList);
+                }
+
+                //刷新存照片時間
+                if (swImageSaveTimer.IsRunning == false || swImageSaveTimer.ElapsedMilliseconds > ImageSaveElapsed)
+                {
+                    swImageSaveTimer.Restart();
+                    firstFrame = 0;
                 }
             }
             List<double> foodAreaRate = new List<double>();
@@ -341,13 +359,12 @@ namespace BoxSetting
         /// <summary>將子區域按照由上方為第1個 右下方為第2 左下方為第3的順序排序處理. 子區塊剛好為4個時才排序</summary>
         private void SubRoiSort(ref List<Rectangle> subRoiList)
         {
+            subRoiList.Sort(new Comparison<Rectangle>((r1, r2) => r1.Y - r2.Y));   
             //if (subRoiList.Count == 4)
-            if (subRoiList.Count == 4)
-            {
+            //{
                 ////將X+Y後由大到小排序
                 // 改為由Y小至大排序
                 //subRoiList.Sort(new Comparison<Rectangle>((r1, r2) => r1.X + r1.Y - r2.X - r2.Y));
-                subRoiList.Sort(new Comparison<Rectangle>((r1, r2) => r2.Y - r1.Y));   
 
 
                 ////去除左上角子區塊
@@ -356,7 +373,7 @@ namespace BoxSetting
                 //Rectangle tmp = subRoiList[1];
                 //subRoiList[1] = subRoiList[2];
                 //subRoiList[2] = tmp;
-            }
+            //}
         }
 
 
@@ -426,6 +443,11 @@ namespace BoxSetting
         Boolean light = false, serialportopen = false;
         private Color[] MsgTypeColor = { Color.Blue, Color.Green, Color.Black, Color.Orange, Color.Red };
         public enum MsgType { System, User, Normal, Warning, Error };
+        //第二組RS232宣告
+        System.IO.Ports.SerialPort serialport2 = new System.IO.Ports.SerialPort();//宣告連接埠
+        Boolean light2 = false, serialport2open = false;
+        //private Color[] MsgTypeColor = { Color.Blue, Color.Green, Color.Black, Color.Orange, Color.Red };
+        //public enum MsgType { System, User, Normal, Warning, Error };
 
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -473,6 +495,14 @@ namespace BoxSetting
             foreach (string com in System.IO.Ports.SerialPort.GetPortNames())//取得所有可用的連接埠
             {
                 comboBox1.Items.Add(com);
+            }
+            //-----------第二組RS232用
+            backgroundWorker2.WorkerSupportsCancellation = true;
+            timer1.Interval = 500;
+            comboBox2.Items.Clear();
+            foreach (string com in System.IO.Ports.SerialPort.GetPortNames())//取得所有可用的連接埠
+            {
+                comboBox2.Items.Add(com);
             }
             //-----------------------------------------------
 
@@ -575,6 +605,62 @@ namespace BoxSetting
                 }
             }
         }
+        //------------------------------以下新建第二組RS232-------------------------------------------
+        private void button13_Click_1(object sender, EventArgs e)
+        {
+            if (serialportopen == false && !serialport2.IsOpen)
+            {
+                try
+                {
+                    //設定連接埠為9600、n、8、1、n
+                    serialport2.PortName = comboBox2.Text;
+                    serialport2.BaudRate = 9600;
+                    serialport2.DataBits = 8;
+                    serialport2.Parity = System.IO.Ports.Parity.None;
+                    serialport2.StopBits = System.IO.Ports.StopBits.One;
+                    serialport2.Encoding = Encoding.Default;//傳輸編碼方式
+                    serialport2.Open();
+                    timer1.Enabled = true;
+                    serialport2open = true;
+                    button12.Enabled = true;
+                    textBox1.Enabled = true;
+                    if (this.backgroundWorker1.IsBusy != true)
+                    {
+                        this.backgroundWorker1.WorkerReportsProgress = true;
+                        this.backgroundWorker1.RunWorkerAsync();
+                    }
+                    button13.Text = "中斷";
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.ToString());
+                }
+            }
+            else if (serialport2open == true && serialport2.IsOpen)
+            {
+                try
+                {
+                    serialport.Close();
+                    if (!serialport2.IsOpen)
+                    {
+                        serialport2open = false;
+                       // timer2.Enabled = false;
+                        button12.Enabled = false;
+                        //textBox2.Enabled = false;
+                        this.backgroundWorker2.WorkerReportsProgress = false;
+                        this.backgroundWorker2.CancelAsync();
+                        this.backgroundWorker2.Dispose();
+                        //ovalShape1.FillColor = Color.Red;
+
+                        button13.Text = "連線";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.ToString());
+                }
+            }
+        }
         private void timer1_Tick(object sender, EventArgs e)
         {
             if (light == false)
@@ -644,15 +730,15 @@ namespace BoxSetting
                 }
             }
         }
-        private void backgroundWorker1_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        private void backgroundWorker2_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             try
             {
                 if (serialport.BytesToRead != 0)
                 {
                     label9.Text = "緩衝區：" + serialport.BytesToRead.ToString();
-                    AddText(MsgType.System, "接收：" + serialport.ReadExisting() + "\r\n");
-                    serialport.DiscardInBuffer();
+                    AddText(MsgType.System, "接收：" + serialport2.ReadExisting() + "\r\n");
+                    serialport2.DiscardInBuffer();
                 }
             }
             catch (Exception)
@@ -660,14 +746,14 @@ namespace BoxSetting
         }
 
         private void AddText(MsgType msgtype, string msg)
-        {
+        {           
             richTextBox1.Invoke(new EventHandler(delegate
             {
-                richTextBox1.SelectedText = string.Empty;
-                richTextBox1.SelectionFont = new Font(richTextBox1.SelectionFont, FontStyle.Bold);
-                richTextBox1.SelectionColor = MsgTypeColor[(int)msgtype];
-                richTextBox1.AppendText(msg);
-                richTextBox1.ScrollToCaret();
+                richTextBox7.SelectedText = string.Empty;
+                richTextBox7.SelectionFont = new Font(richTextBox7.SelectionFont, FontStyle.Bold);
+                richTextBox7.SelectionColor = MsgTypeColor[(int)msgtype];
+                richTextBox7.AppendText(msg);
+                richTextBox7.ScrollToCaret();
             }));
         }
      
@@ -770,8 +856,16 @@ namespace BoxSetting
             Image<Gray, byte> cbThreshImage = cbImage;
 
 
-            SubRoiThreshValue = (int)Emgu.CV.CvInvoke.cvThreshold(cbImage.Ptr, cbThreshImage.Ptr, SubRoiThreshValue, 255d,
-                SubWhiteOrBlack | Emgu.CV.CvEnum.THRESH.CV_THRESH_OTSU);
+            if (DefaultSubThreshold == 0)
+            {
+                SubRoiThreshValue = (int)Emgu.CV.CvInvoke.cvThreshold(cbImage.Ptr, cbThreshImage.Ptr, SubRoiThreshValue, 255d,
+                    SubWhiteOrBlack | Emgu.CV.CvEnum.THRESH.CV_THRESH_OTSU);
+            }
+            else
+            {
+                SubRoiThreshValue = (int)Emgu.CV.CvInvoke.cvThreshold(cbImage.Ptr, cbThreshImage.Ptr, DefaultSubThreshold, 255d,
+                    SubWhiteOrBlack);
+            }
 
 
             outputImage.Draw("subRoiThValue=" + greyThreshValue.ToString(), ref cvFontBack, new Point(0, 80), new Bgr(255, 0, 0));
@@ -830,13 +924,15 @@ namespace BoxSetting
             greyThreshImg = greyImg.CopyBlank();
 
 
+            Emgu.CV.CvEnum.THRESH FoodThresType = Emgu.CV.CvEnum.THRESH.CV_THRESH_BINARY;
+            //Emgu.CV.CvEnum.THRESH FoodThresType = Emgu.CV.CvEnum.THRESH.CV_THRESH_BINARY_INV;
             if (DebugThresholdMode >= 1 && debugThreshold > 0)
             {
-                greyThreshValue = (int)Emgu.CV.CvInvoke.cvThreshold(greyImg.Ptr, greyThreshImg.Ptr, debugThreshold, 255d, Emgu.CV.CvEnum.THRESH.CV_THRESH_BINARY_INV);
+                greyThreshValue = (int)Emgu.CV.CvInvoke.cvThreshold(greyImg.Ptr, greyThreshImg.Ptr, debugThreshold, 255d, FoodThresType);
             }
             else
             {
-                greyThreshValue = (int)Emgu.CV.CvInvoke.cvThreshold(greyImg.Ptr, greyThreshImg.Ptr, greyThreshValue, 255d, Emgu.CV.CvEnum.THRESH.CV_THRESH_BINARY_INV | Emgu.CV.CvEnum.THRESH.CV_THRESH_OTSU);
+                greyThreshValue = (int)Emgu.CV.CvInvoke.cvThreshold(greyImg.Ptr, greyThreshImg.Ptr, greyThreshValue, 255d, FoodThresType | Emgu.CV.CvEnum.THRESH.CV_THRESH_OTSU);
             }
 
             outputImage.Draw("foodThValue=" + greyThreshValue.ToString(), ref cvFontBack, new Point(0, 110), new Bgr(255, 0, 0));
@@ -1255,6 +1351,18 @@ namespace BoxSetting
         private void button13_Click(object sender, EventArgs e)
         {
          
+        }
+
+        private void button14_Click(object sender, EventArgs e)
+        {
+            Image<Bgr, byte> testImg = new Image<Bgr, byte>(@"F:\餐盤影像\test.jpg");
+            Image<Bgr, byte> outputImg = new Image<Bgr, byte>(@"F:\餐盤影像\test.jpg");
+            Image<Gray, byte> threshImage = new Image<Gray, byte>(@"F:\餐盤影像\test.jpg");
+            SearchPlateROI = new Rectangle();
+            //PlateDetector(testImg, ref outputImg, out threshImage);
+            SubRoiDetector(testImg, ref outputImg, out threshImage);
+            outputImg.Save(@"F:\餐盤影像\test_outputImg.jpg");
+            threshImage.Save(@"F:\餐盤影像\test_threshImage.jpg");
         }
 
        
