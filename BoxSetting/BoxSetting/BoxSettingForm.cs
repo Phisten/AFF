@@ -29,6 +29,9 @@ namespace BoxSetting
         Emgu.CV.CvEnum.THRESH WhiteOrBlack = Emgu.CV.CvEnum.THRESH.CV_THRESH_BINARY;
         Emgu.CV.CvEnum.THRESH SubWhiteOrBlack = Emgu.CV.CvEnum.THRESH.CV_THRESH_BINARY_INV;
 
+        //int DefaultSubThreshold = 115;
+        int DefaultSubThreshold = 115;
+
         //delegate void pri 
         delegate void RefreshListBox(BoxSettingForm thisForm);
         RefreshListBox refreshListBox = ReViewListBoxStatic;
@@ -853,8 +856,16 @@ namespace BoxSetting
             Image<Gray, byte> cbThreshImage = cbImage;
 
 
-            SubRoiThreshValue = (int)Emgu.CV.CvInvoke.cvThreshold(cbImage.Ptr, cbThreshImage.Ptr, SubRoiThreshValue, 255d,
-                SubWhiteOrBlack | Emgu.CV.CvEnum.THRESH.CV_THRESH_OTSU);
+            if (DefaultSubThreshold == 0)
+            {
+                SubRoiThreshValue = (int)Emgu.CV.CvInvoke.cvThreshold(cbImage.Ptr, cbThreshImage.Ptr, SubRoiThreshValue, 255d,
+                    SubWhiteOrBlack | Emgu.CV.CvEnum.THRESH.CV_THRESH_OTSU);
+            }
+            else
+            {
+                SubRoiThreshValue = (int)Emgu.CV.CvInvoke.cvThreshold(cbImage.Ptr, cbThreshImage.Ptr, DefaultSubThreshold, 255d,
+                    SubWhiteOrBlack);
+            }
 
 
             outputImage.Draw("subRoiThValue=" + greyThreshValue.ToString(), ref cvFontBack, new Point(0, 80), new Bgr(255, 0, 0));
@@ -913,13 +924,15 @@ namespace BoxSetting
             greyThreshImg = greyImg.CopyBlank();
 
 
+            Emgu.CV.CvEnum.THRESH FoodThresType = Emgu.CV.CvEnum.THRESH.CV_THRESH_BINARY;
+            //Emgu.CV.CvEnum.THRESH FoodThresType = Emgu.CV.CvEnum.THRESH.CV_THRESH_BINARY_INV;
             if (DebugThresholdMode >= 1 && debugThreshold > 0)
             {
-                greyThreshValue = (int)Emgu.CV.CvInvoke.cvThreshold(greyImg.Ptr, greyThreshImg.Ptr, debugThreshold, 255d, Emgu.CV.CvEnum.THRESH.CV_THRESH_BINARY_INV);
+                greyThreshValue = (int)Emgu.CV.CvInvoke.cvThreshold(greyImg.Ptr, greyThreshImg.Ptr, debugThreshold, 255d, FoodThresType);
             }
             else
             {
-                greyThreshValue = (int)Emgu.CV.CvInvoke.cvThreshold(greyImg.Ptr, greyThreshImg.Ptr, greyThreshValue, 255d, Emgu.CV.CvEnum.THRESH.CV_THRESH_BINARY_INV | Emgu.CV.CvEnum.THRESH.CV_THRESH_OTSU);
+                greyThreshValue = (int)Emgu.CV.CvInvoke.cvThreshold(greyImg.Ptr, greyThreshImg.Ptr, greyThreshValue, 255d, FoodThresType | Emgu.CV.CvEnum.THRESH.CV_THRESH_OTSU);
             }
 
             outputImage.Draw("foodThValue=" + greyThreshValue.ToString(), ref cvFontBack, new Point(0, 110), new Bgr(255, 0, 0));
@@ -1338,6 +1351,18 @@ namespace BoxSetting
         private void button13_Click(object sender, EventArgs e)
         {
          
+        }
+
+        private void button14_Click(object sender, EventArgs e)
+        {
+            Image<Bgr, byte> testImg = new Image<Bgr, byte>(@"F:\餐盤影像\test.jpg");
+            Image<Bgr, byte> outputImg = new Image<Bgr, byte>(@"F:\餐盤影像\test.jpg");
+            Image<Gray, byte> threshImage = new Image<Gray, byte>(@"F:\餐盤影像\test.jpg");
+            SearchPlateROI = new Rectangle();
+            //PlateDetector(testImg, ref outputImg, out threshImage);
+            SubRoiDetector(testImg, ref outputImg, out threshImage);
+            outputImg.Save(@"F:\餐盤影像\test_outputImg.jpg");
+            threshImage.Save(@"F:\餐盤影像\test_threshImage.jpg");
         }
 
        

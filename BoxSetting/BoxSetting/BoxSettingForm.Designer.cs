@@ -69,6 +69,7 @@
             this.button13 = new System.Windows.Forms.Button();
             this.comboBox2 = new System.Windows.Forms.ComboBox();
             this.backgroundWorker2 = new System.ComponentModel.BackgroundWorker();
+            this.button14 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.captureImageBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
             this.SuspendLayout();
@@ -418,11 +419,22 @@
             this.comboBox2.Size = new System.Drawing.Size(106, 20);
             this.comboBox2.TabIndex = 43;
             // 
+            // button14
+            // 
+            this.button14.Location = new System.Drawing.Point(7, 474);
+            this.button14.Name = "button14";
+            this.button14.Size = new System.Drawing.Size(82, 41);
+            this.button14.TabIndex = 44;
+            this.button14.Text = "button14";
+            this.button14.UseVisualStyleBackColor = true;
+            this.button14.Click += new System.EventHandler(this.button14_Click);
+            // 
             // BoxSettingForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1059, 552);
+            this.Controls.Add(this.button14);
             this.Controls.Add(this.comboBox2);
             this.Controls.Add(this.button13);
             this.Controls.Add(this.richTextBox7);
@@ -517,6 +529,7 @@
         private System.Windows.Forms.Button button13;
         private System.Windows.Forms.ComboBox comboBox2;
         private System.ComponentModel.BackgroundWorker backgroundWorker2;
+        private System.Windows.Forms.Button button14;
     }
 }
 
