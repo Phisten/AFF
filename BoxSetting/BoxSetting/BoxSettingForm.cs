@@ -393,6 +393,7 @@ namespace BoxSetting
             List<int> stateIndex = new List<int>() { 0 , 1 , 2 };
              
             List<RichTextBox> subRectTextBoxList = new List<RichTextBox>() { richTextBox2, richTextBox3, richTextBox4, richTextBox5 };
+            double foodAreaRateTemp = 0d;
             for (int i = 0; i < partitionFoodAreaRate.Count; i++)
             {
                 int curStateIndex = 0;
@@ -412,6 +413,7 @@ namespace BoxSetting
                     //stateCodeList.Add(i / 3 == 0 ? '0' : '1');
                     //stateCodeList.Add(i / 3 == 1 ? '0' : '1');
                     stateCodeList.Add((new char[]{'A','B','C'})[i / 3]);
+
                 }
 
 
@@ -419,9 +421,19 @@ namespace BoxSetting
                 //char foodPsASC = ((int)(partitionFoodAreaRate[i] * 10)).ToString()[0];
                 //20140603 整合組要求修改,原本輸出食物百分比0~9 改為0與1 (閥值為30%)
                 char foodPsASC = partitionFoodAreaRate[i] > 0.3d ? '1' : '0';
-                stateCodeList.Add(foodPsASC);
+
+                //20150105 輸出格式變更  由 a111b111c111  改為  a1b1c1 (不分為三個子區塊)
+                //stateCodeList.Add(foodPsASC); 
+                foodAreaRateTemp += partitionFoodAreaRate[i];
+                if (i % 3 == 2 && i < 9)
+                {
+                    stateCodeList.Add(foodAreaRateTemp > 3d * 0.3d ? '1' : '0');
+                    foodAreaRateTemp = 0d;
+                }
 
             }
+
+
             //發送RS232訊號
             if (sw.IsRunning == false) sw.Start();
             if (serialport.IsOpen == true && sw.ElapsedMilliseconds >= RS232UpdateTime)
