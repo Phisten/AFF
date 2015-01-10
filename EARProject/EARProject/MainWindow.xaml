@@ -1,0 +1,10 @@
+﻿<Window x:Class="EARProject.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MainWindow" Height="568" Width="674">
+    <Grid>
+        <Image x:Name="VideoBox" HorizontalAlignment="Left" Height="337" Margin="107,109,0,0" VerticalAlignment="Top" Width="450"/>
+        <Button Content="Button" HorizontalAlignment="Left" Height="38" Margin="235,46,0,0" VerticalAlignment="Top" Width="199" Click="Button_Click_1"/>
+
+    </Grid>
+</Window>

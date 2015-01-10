@@ -70,6 +70,9 @@
             this.comboBox2 = new System.Windows.Forms.ComboBox();
             this.backgroundWorker2 = new System.ComponentModel.BackgroundWorker();
             this.button14 = new System.Windows.Forms.Button();
+            this.button15 = new System.Windows.Forms.Button();
+            this.button16 = new System.Windows.Forms.Button();
+            this.button17 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.captureImageBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
             this.SuspendLayout();
@@ -109,7 +112,7 @@
             // 
             // captureImageBox
             // 
-            this.captureImageBox.Location = new System.Drawing.Point(313, 44);
+            this.captureImageBox.Location = new System.Drawing.Point(313, 60);
             this.captureImageBox.Name = "captureImageBox";
             this.captureImageBox.Size = new System.Drawing.Size(523, 408);
             this.captureImageBox.TabIndex = 6;
@@ -429,11 +432,41 @@
             this.button14.UseVisualStyleBackColor = true;
             this.button14.Click += new System.EventHandler(this.button14_Click);
             // 
+            // button15
+            // 
+            this.button15.Location = new System.Drawing.Point(9, 76);
+            this.button15.Name = "button15";
+            this.button15.Size = new System.Drawing.Size(102, 32);
+            this.button15.TabIndex = 45;
+            this.button15.Text = "設定食物區1";
+            this.button15.UseVisualStyleBackColor = true;
+            // 
+            // button16
+            // 
+            this.button16.Location = new System.Drawing.Point(9, 114);
+            this.button16.Name = "button16";
+            this.button16.Size = new System.Drawing.Size(102, 32);
+            this.button16.TabIndex = 45;
+            this.button16.Text = "設定食物區2";
+            this.button16.UseVisualStyleBackColor = true;
+            // 
+            // button17
+            // 
+            this.button17.Location = new System.Drawing.Point(9, 152);
+            this.button17.Name = "button17";
+            this.button17.Size = new System.Drawing.Size(102, 32);
+            this.button17.TabIndex = 45;
+            this.button17.Text = "設定食物區3";
+            this.button17.UseVisualStyleBackColor = true;
+            // 
             // BoxSettingForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1059, 552);
+            this.Controls.Add(this.button17);
+            this.Controls.Add(this.button16);
+            this.Controls.Add(this.button15);
             this.Controls.Add(this.button14);
             this.Controls.Add(this.comboBox2);
             this.Controls.Add(this.button13);
@@ -530,6 +563,9 @@
         private System.Windows.Forms.ComboBox comboBox2;
         private System.ComponentModel.BackgroundWorker backgroundWorker2;
         private System.Windows.Forms.Button button14;
+        private System.Windows.Forms.Button button15;
+        private System.Windows.Forms.Button button16;
+        private System.Windows.Forms.Button button17;
     }
 }
 
