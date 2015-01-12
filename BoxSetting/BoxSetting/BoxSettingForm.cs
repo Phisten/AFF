@@ -432,10 +432,12 @@ namespace BoxSetting
                 int centerFoodAreaRate = 0;
 
 
-                if (i % 3 == 0 && i < 9)
+                if (i < SubROICount)
+                    //if (i % 3 == 0 && i < 9)
                 {
                     //更新食物訊息於訊息
-                    int curfoodareaTest = partitionFoodArea[i] + partitionFoodArea[i + 1] + partitionFoodArea[i + 2];
+                    //int curfoodareaTest = partitionFoodArea[i] + partitionFoodArea[i + 1] + partitionFoodArea[i + 2];
+                    int curfoodareaTest = partitionFoodArea[i];
                     curStateIndex = curfoodareaTest > 0 ? 1 : foodRoiList[i].Count > 0 ? 2 : 0;
                     //subRectTextBoxList[i / 3].Invoke(centerInfoStrByIndex, curStateIndex, stateMsg, subRectTextBoxList[i / 3]);
 
@@ -444,7 +446,7 @@ namespace BoxSetting
                     ////串上
                     //stateCodeList.Add(i / 3 == 0 ? '0' : '1');
                     //stateCodeList.Add(i / 3 == 1 ? '0' : '1');
-                    stateCodeList.Add((new char[] { 'A', 'B', 'C' })[i / 3]);
+                    stateCodeList.Add((new char[] { 'A', 'B', 'C' })[i]);
 
                 }
 
@@ -457,7 +459,8 @@ namespace BoxSetting
                 //20150105 輸出格式變更  由 a111b111c111  改為  a1b1c1 (不分為三個子區塊)
                 //stateCodeList.Add(foodPsASC); 
                 foodAreaRateTemp += partitionFoodAreaRate[i];
-                if (i % 3 == 2 && i < 9)
+                if (i < SubROICount)
+                    //if (i % 3 == 2 && i < 9)
                 {
                     stateCodeList.Add(foodAreaRateTemp > 3d * 0.3d ? '1' : '0');
                     foodAreaRateTemp = 0d;
