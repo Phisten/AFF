@@ -1,7 +1,7 @@
-<Plate templetPlateWidth="388" templetPlateHeight="422">
-  <SearchPlateROI X="194" Y="29" Width="388" Height="422" />
-  <SubROI1 X="238" Y="53" Width="288" Height="132" />
-  <SubROI2 X="238" Y="209" Width="287" Height="105" />
-  <SubROI3 X="250" Y="340" Width="277" Height="96" />
+<Plate templetPlateWidth="380" templetPlateHeight="402">
+  <SearchPlateROI X="141" Y="14" Width="380" Height="402" />
+  <SubROI1 X="348" Y="73" Width="122" Height="74" />
+  <SubROI2 X="353" Y="194" Width="113" Height="68" />
+  <SubROI3 X="353" Y="304" Width="113" Height="68" />
   <SubROI4 X="0" Y="0" Width="0" Height="0" />
 </Plate>
