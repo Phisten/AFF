@@ -1,6 +1,6 @@
 <Plate templetPlateWidth="380" templetPlateHeight="402">
   <SearchPlateROI X="141" Y="14" Width="380" Height="402" />
-  <SubROI1 X="348" Y="73" Width="122" Height="74" />
+  <SubROI1 X="347" Y="70" Width="113" Height="68" />
   <SubROI2 X="353" Y="194" Width="113" Height="68" />
   <SubROI3 X="353" Y="304" Width="113" Height="68" />
   <SubROI4 X="0" Y="0" Width="0" Height="0" />

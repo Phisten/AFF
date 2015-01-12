@@ -57,6 +57,9 @@ namespace BoxSetting
         /// <summary>每個餐盤子區塊分割區的食物所含面積</summary>
         List<int> partitionFoodArea = new List<int>();
         List<double> partitionFoodAreaRate = new List<double>();
+        MCvFont foodrateFont = new MCvFont(Emgu.CV.CvEnum.FONT.CV_FONT_HERSHEY_COMPLEX_SMALL, 1d, 1d);
+        double foodDetectorRate = 0.20d;
+
 
         //curBox = Red
         Rectangle curROI = new Rectangle();
@@ -192,7 +195,9 @@ namespace BoxSetting
                     Rectangle curSubROIpartition1 = curSubRoiThresholdRect;
                     foodarea = ValueHitTest(curThresholdImage, curSubROIpartition1);
                     partitionFoodArea.Add(foodarea);
-                    partitionFoodAreaRate.Add(foodarea / (double)(curSubROIpartition1.Width * curSubROIpartition1.Height));
+                    double foodareaRate = foodarea / (double)(curSubROIpartition1.Width * curSubROIpartition1.Height);
+                    partitionFoodAreaRate.Add(foodareaRate);
+                    outputImage.Draw(Math.Round(foodareaRate*100d).ToString() + "%", ref foodrateFont, new Point(curSubROIpartition1.X + curSubROI.X, curSubROIpartition1.Y + curSubROI.Y), new Bgr(0, 0, 255));
                     outputImage.Draw(new Rectangle(curSubROIpartition1.X + curSubROI.X, curSubROIpartition1.Y + curSubROI.Y, curSubROIpartition1.Width, curSubROIpartition1.Height), new Bgr(255, 200, 100), 1);
 
                     ////右下角分割區
@@ -447,6 +452,7 @@ namespace BoxSetting
                     //stateCodeList.Add(i / 3 == 0 ? '0' : '1');
                     //stateCodeList.Add(i / 3 == 1 ? '0' : '1');
                     stateCodeList.Add((new char[] { 'A', 'B', 'C' })[i]);
+                    stateCodeList.Add(partitionFoodAreaRate[i] > foodDetectorRate ? '1' : '0');
 
                 }
 
@@ -454,17 +460,16 @@ namespace BoxSetting
                 ////串上目前分割區的食物百分比
                 //char foodPsASC = ((int)(partitionFoodAreaRate[i] * 10)).ToString()[0];
                 //20140603 整合組要求修改,原本輸出食物百分比0~9 改為0與1 (閥值為30%)
-                char foodPsASC = partitionFoodAreaRate[i] > 0.3d ? '1' : '0';
+                //char foodPsASC = partitionFoodAreaRate[i] > 0.3d ? '1' : '0';
 
                 //20150105 輸出格式變更  由 a111b111c111  改為  a1b1c1 (不分為三個子區塊)
                 //stateCodeList.Add(foodPsASC); 
-                foodAreaRateTemp += partitionFoodAreaRate[i];
-                if (i < SubROICount)
-                    //if (i % 3 == 2 && i < 9)
-                {
-                    stateCodeList.Add(foodAreaRateTemp > 3d * 0.3d ? '1' : '0');
-                    foodAreaRateTemp = 0d;
-                }
+                //foodAreaRateTemp += partitionFoodAreaRate[i];
+                //if (i % 3 == 2 && i < 9)
+                //{
+                //    stateCodeList.Add(foodAreaRateTemp > 3d * 0.3d ? '1' : '0');
+                //    foodAreaRateTemp = 0d;
+                //}
 
             }
 
@@ -968,8 +973,8 @@ namespace BoxSetting
             greyThreshImg = greyImg.CopyBlank();
 
 
-            Emgu.CV.CvEnum.THRESH FoodThresType = Emgu.CV.CvEnum.THRESH.CV_THRESH_BINARY;
-            //Emgu.CV.CvEnum.THRESH FoodThresType = Emgu.CV.CvEnum.THRESH.CV_THRESH_BINARY_INV;
+            //Emgu.CV.CvEnum.THRESH FoodThresType = Emgu.CV.CvEnum.THRESH.CV_THRESH_BINARY;
+            Emgu.CV.CvEnum.THRESH FoodThresType = Emgu.CV.CvEnum.THRESH.CV_THRESH_BINARY_INV;
             if (DebugThresholdMode >= 1 && debugThreshold > 0)
             {
                 greyThreshValue = (int)Emgu.CV.CvInvoke.cvThreshold(greyImg.Ptr, greyThreshImg.Ptr, debugThreshold, 255d, FoodThresType);
@@ -999,12 +1004,15 @@ namespace BoxSetting
             foreach (Emgu.CV.Cvb.CvBlob targetBlob in resultingImgBlobs.Values)
             {
                 Rectangle bBox = targetBlob.BoundingBox;
-                if (targetBlob.Area > _blobSizeThreshold && !IsSubRoiCorner(curSubRoi.Width, curSubRoi.Height, bBox))
+                if (targetBlob.Area > _blobSizeThreshold)
+                //20150112 :已取消食物與餐盤邊緣觸碰的偵測 (因餐盤架構改變)
+                    //if (targetBlob.Area > _blobSizeThreshold && !IsSubRoiCorner(curSubRoi.Width, curSubRoi.Height, bBox))
                 {
                     greyThreshImg.Draw(targetBlob.BoundingBox, new Gray(130), 1);
                     bBox.X += curSubRoi.X;
                     bBox.Y += curSubRoi.Y;
                     foodRoiList.Add(bBox);
+
                     //outputImage.Draw(bBox, red, 1);
 
 
@@ -1015,6 +1023,8 @@ namespace BoxSetting
                     {
                         curCenterFoodArea += targetBlob.Area;
                     }
+                    //curCenterFoodArea += targetBlob.Area;
+
                 }
             }
             foodThreshImage = greyThreshImg;
