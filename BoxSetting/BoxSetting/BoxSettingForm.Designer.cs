@@ -90,7 +90,7 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(9, 17);
+            this.button1.Location = new System.Drawing.Point(145, 23);
             this.button1.Margin = new System.Windows.Forms.Padding(2);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(139, 37);
@@ -101,10 +101,10 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(152, 17);
+            this.button2.Location = new System.Drawing.Point(9, 23);
             this.button2.Margin = new System.Windows.Forms.Padding(2);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(145, 37);
+            this.button2.Size = new System.Drawing.Size(132, 37);
             this.button2.TabIndex = 3;
             this.button2.Text = "儲存餐盤搜尋區域";
             this.button2.UseVisualStyleBackColor = true;
@@ -440,6 +440,7 @@
             this.button15.TabIndex = 45;
             this.button15.Text = "設定食物區1";
             this.button15.UseVisualStyleBackColor = true;
+            this.button15.Click += new System.EventHandler(this.button15_Click);
             // 
             // button16
             // 
@@ -449,6 +450,7 @@
             this.button16.TabIndex = 45;
             this.button16.Text = "設定食物區2";
             this.button16.UseVisualStyleBackColor = true;
+            this.button16.Click += new System.EventHandler(this.button16_Click);
             // 
             // button17
             // 
@@ -458,6 +460,7 @@
             this.button17.TabIndex = 45;
             this.button17.Text = "設定食物區3";
             this.button17.UseVisualStyleBackColor = true;
+            this.button17.Click += new System.EventHandler(this.button17_Click);
             // 
             // BoxSettingForm
             // 

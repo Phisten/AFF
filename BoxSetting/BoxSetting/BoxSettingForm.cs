@@ -20,11 +20,15 @@ namespace BoxSetting
 {
     public partial class BoxSettingForm : Form
     {
+        //20150112 : 餐盤位置絕對座標模式
+        bool DirectPositionMode = true;
+
+
         bool SettingMode = false;
-        bool AutoDetectSubRoi = true;
+        bool AutoDetectSubRoi = false;
         double templetPlateWidth = 1;
         double templetPlateHeight = 1;
-        
+
         //Emgu.CV.CvEnum.THRESH WhiteOrBlack = Emgu.CV.CvEnum.THRESH.CV_THRESH_BINARY_INV;
         Emgu.CV.CvEnum.THRESH WhiteOrBlack = Emgu.CV.CvEnum.THRESH.CV_THRESH_BINARY;
         Emgu.CV.CvEnum.THRESH SubWhiteOrBlack = Emgu.CV.CvEnum.THRESH.CV_THRESH_BINARY_INV;
@@ -35,7 +39,7 @@ namespace BoxSetting
         //delegate void pri 
         delegate void RefreshListBox(BoxSettingForm thisForm);
         RefreshListBox refreshListBox = ReViewListBoxStatic;
-        
+
         //SquarePlateROI = Blue
         Rectangle SearchPlateROI = new Rectangle(20, 20, 620, 460);
         Bgr SearchPlateColor = new Bgr(255, 0, 0);
@@ -45,6 +49,8 @@ namespace BoxSetting
         Bgr MainRoiColor = new Bgr(0, 0, 0);
 
         //SubRoi = Green
+        int SubROICount = 3;
+        double SubRoiScaleRate = 0.9d;
         List<Rectangle> subRoiList = new List<Rectangle>();
         List<List<Rectangle>> foodRoiList = new List<List<Rectangle>>();
         Bgr SubRoiColor = new Bgr(0, 255, 0);
@@ -63,7 +69,7 @@ namespace BoxSetting
         //Debug
         int DebugLevel = 1;
         int DebugThresholdMode = 1;
-        Image<Rgb,byte>[] debugImage = new Image<Rgb,byte>[8];
+        Image<Rgb, byte>[] debugImage = new Image<Rgb, byte>[8];
 
         //int SquarePlateThreshold = 120;
         int WebCamIndex = 0;
@@ -99,7 +105,7 @@ namespace BoxSetting
             {
                 MessageBox.Show(excpt.Message);
             }
-            
+
         }
 
         MCvFont cvFontFoodPos = new MCvFont(Emgu.CV.CvEnum.FONT.CV_FONT_HERSHEY_SIMPLEX, 0.3d, 0.3d);
@@ -112,32 +118,42 @@ namespace BoxSetting
         {
 
             if (0 == (int)curType)
-            frame = _capture.RetrieveBgrFrame();
+                frame = _capture.RetrieveBgrFrame();
             Image<Bgr, Byte> srcImage = frame.Resize(captureImageBox.Size.Width, captureImageBox.Size.Height, Emgu.CV.CvEnum.INTER.CV_INTER_LINEAR);
             srcImage._SmoothGaussian(3);
             Image<Bgr, Byte> outputImage = srcImage.Copy();
 
             Image<Gray, byte> threshImage = null;
             Image<Gray, byte> subRoiThreshImage = null;
-            List<Image<Gray, byte>> foodThreshImageList = new List<Image<Gray,byte>>(); //餐盤子區域二值化影像
+            List<Image<Gray, byte>> foodThreshImageList = new List<Image<Gray, byte>>(); //餐盤子區域二值化影像
             List<Image<Gray, byte>> foodThreshCenterImageList = new List<Image<Gray, byte>>(); //餐盤子區域中心處(食物抓取區域)二值化影像
             if (SettingMode == false)
             {
-                //尋找餐盤位置
-                PlateDetector(srcImage, ref outputImage, out threshImage);
+                if (DirectPositionMode)
+                {
+                    PlateDetector_ByPass(srcImage, ref outputImage, out threshImage);
+                }
+                else
+                {
+                    //尋找餐盤位置
+                    PlateDetector(srcImage, ref outputImage, out threshImage);
+                }
 
             }
 
             partitionFoodArea = new List<int>();
             partitionFoodAreaRate = new List<double>();
             foodRoiList = new List<List<Rectangle>>(); //所有餐盤子區域檢測出的食物ROI (座標用於攝影機原始影像)
-            if (SettingMode == false && AutoDetectSubRoi == true)
+            if (SettingMode == false)
             {
-                //尋找餐盤子區塊
-                SubRoiDetector(srcImage, ref outputImage, out subRoiThreshImage);
+                if (AutoDetectSubRoi == true)
+                {
+                    //尋找餐盤子區塊
+                    SubRoiDetector(srcImage, ref outputImage, out subRoiThreshImage);
 
-                //去除右上角區塊並排序其他區塊
-                SubRoiSort(ref subRoiList);
+                    //去除右上角區塊並排序其他區塊
+                    SubRoiSort(ref subRoiList);
+                }
 
                 for (int i = 0; i < subRoiList.Count; i++)
                 {
@@ -147,15 +163,20 @@ namespace BoxSetting
                     //判斷各個子區域是否仍有食物 以及回傳中心食物區塊大小
 
 
-                    //縮小至80%子區域範圍
-                    Rectangle curSubROI = RectangleCenterScale(subRoiList[i], 0.8d, 0.8d);
+                    //縮小子區域範圍    SubRoiScaleRate
+                    Rectangle curSubROI = RectangleCenterScale(subRoiList[i], SubRoiScaleRate, SubRoiScaleRate);
+                    if (curSubROI.Height == 0 || curSubROI.Width == 0)
+                    {
+                        continue;
+                    }
 
-                    if (firstFrame <= i && i < 4 && swImageSaveTimer.ElapsedMilliseconds > ImageSaveElapsed)
+
+                    if (firstFrame <= i && i < SubROICount && swImageSaveTimer.ElapsedMilliseconds > ImageSaveElapsed)
                     {
                         Image<Bgr, byte> viewImage = srcImage.Copy(curSubROI).Resize(2d, Emgu.CV.CvEnum.INTER.CV_INTER_LINEAR);
                         viewImage.Save(@"C:\img\" + (i + 1).ToString() + ".jpg");
-                       // Image<Bgr, byte> viewImage2 = srcImage.Copy(curSubROI);
-                       // viewImage2.Save(@"C:\img\" + (i + 1).ToString() + "src.jpg");
+                        // Image<Bgr, byte> viewImage2 = srcImage.Copy(curSubROI);
+                        // viewImage2.Save(@"C:\img\" + (i + 1).ToString() + "src.jpg");
                         firstFrame++;
 
                     }
@@ -166,29 +187,37 @@ namespace BoxSetting
 
                     int foodarea;
                     Rectangle curSubRoiThresholdRect = curThresholdImage.ROI;
-                    //右下角分割區
-                    Rectangle curSubROIpartition1 = RectangleCenterScale(curSubRoiThresholdRect, 0.5d, 0.5d);
-                    curSubROIpartition1.Offset(curSubRoiThresholdRect.Width / 4, curSubRoiThresholdRect.Height / 4);
+
+                    //子區域食物面積計算
+                    Rectangle curSubROIpartition1 = curSubRoiThresholdRect;
                     foodarea = ValueHitTest(curThresholdImage, curSubROIpartition1);
                     partitionFoodArea.Add(foodarea);
                     partitionFoodAreaRate.Add(foodarea / (double)(curSubROIpartition1.Width * curSubROIpartition1.Height));
                     outputImage.Draw(new Rectangle(curSubROIpartition1.X + curSubROI.X, curSubROIpartition1.Y + curSubROI.Y, curSubROIpartition1.Width, curSubROIpartition1.Height), new Bgr(255, 200, 100), 1);
 
-                    //右上角分割區
-                    Rectangle curSubROIpartition2 = RectangleCenterScale(curSubRoiThresholdRect, 0.5d, 0.5d);
-                    curSubROIpartition2.Offset(curSubRoiThresholdRect.Width / 4, -curSubRoiThresholdRect.Height / 4);
-                    foodarea = ValueHitTest(curThresholdImage, curSubROIpartition2);
-                    partitionFoodArea.Add(foodarea);
-                    partitionFoodAreaRate.Add(foodarea / (double)(curSubROIpartition2.Width * curSubROIpartition2.Height));
-                    outputImage.Draw(new Rectangle(curSubROIpartition2.X + curSubROI.X, curSubROIpartition2.Y + curSubROI.Y, curSubROIpartition2.Width, curSubROIpartition2.Height), new Bgr(255, 200, 100), 1);
+                    ////右下角分割區
+                    //Rectangle curSubROIpartition1 = RectangleCenterScale(curSubRoiThresholdRect, 0.5d, 0.5d);
+                    //curSubROIpartition1.Offset(curSubRoiThresholdRect.Width / 4, curSubRoiThresholdRect.Height / 4);
+                    //foodarea = ValueHitTest(curThresholdImage, curSubROIpartition1);
+                    //partitionFoodArea.Add(foodarea);
+                    //partitionFoodAreaRate.Add(foodarea / (double)(curSubROIpartition1.Width * curSubROIpartition1.Height));
+                    //outputImage.Draw(new Rectangle(curSubROIpartition1.X + curSubROI.X, curSubROIpartition1.Y + curSubROI.Y, curSubROIpartition1.Width, curSubROIpartition1.Height), new Bgr(255, 200, 100), 1);
 
-                    //左邊分割區
-                    Rectangle curSubROIpartition3 = RectangleCenterScale(curSubRoiThresholdRect, 0.5d, 1d);
-                    curSubROIpartition3.Offset(-curSubRoiThresholdRect.Width / 4, 0);
-                    foodarea = ValueHitTest(curThresholdImage, curSubROIpartition3);
-                    partitionFoodArea.Add(foodarea);
-                    partitionFoodAreaRate.Add(foodarea / (double)(curSubROIpartition3.Width * curSubROIpartition3.Height));
-                    outputImage.Draw(new Rectangle(curSubROIpartition3.X + curSubROI.X, curSubROIpartition3.Y + curSubROI.Y, curSubROIpartition3.Width, curSubROIpartition3.Height), new Bgr(255, 200, 100), 1);
+                    ////右上角分割區
+                    //Rectangle curSubROIpartition2 = RectangleCenterScale(curSubRoiThresholdRect, 0.5d, 0.5d);
+                    //curSubROIpartition2.Offset(curSubRoiThresholdRect.Width / 4, -curSubRoiThresholdRect.Height / 4);
+                    //foodarea = ValueHitTest(curThresholdImage, curSubROIpartition2);
+                    //partitionFoodArea.Add(foodarea);
+                    //partitionFoodAreaRate.Add(foodarea / (double)(curSubROIpartition2.Width * curSubROIpartition2.Height));
+                    //outputImage.Draw(new Rectangle(curSubROIpartition2.X + curSubROI.X, curSubROIpartition2.Y + curSubROI.Y, curSubROIpartition2.Width, curSubROIpartition2.Height), new Bgr(255, 200, 100), 1);
+
+                    ////左邊分割區
+                    //Rectangle curSubROIpartition3 = RectangleCenterScale(curSubRoiThresholdRect, 0.5d, 1d);
+                    //curSubROIpartition3.Offset(-curSubRoiThresholdRect.Width / 4, 0);
+                    //foodarea = ValueHitTest(curThresholdImage, curSubROIpartition3);
+                    //partitionFoodArea.Add(foodarea);
+                    //partitionFoodAreaRate.Add(foodarea / (double)(curSubROIpartition3.Width * curSubROIpartition3.Height));
+                    //outputImage.Draw(new Rectangle(curSubROIpartition3.X + curSubROI.X, curSubROIpartition3.Y + curSubROI.Y, curSubROIpartition3.Width, curSubROIpartition3.Height), new Bgr(255, 200, 100), 1);
 
 
 
@@ -197,6 +226,9 @@ namespace BoxSetting
                     foodThreshImageList.Add(curThresholdImage);
                     foodRoiList.Add(curFoodRoiList);
                 }
+
+
+                
 
                 //刷新存照片時間
                 if (swImageSaveTimer.IsRunning == false || swImageSaveTimer.ElapsedMilliseconds > ImageSaveElapsed)
@@ -236,7 +268,7 @@ namespace BoxSetting
 
 
                 outputImage.Draw(curRoi, SubRoiColor, 1);
-                outputImage.Draw("sub" + (subRoiListIndex++).ToString(), ref cvFontBack, new Point(curRoi.X+5, curRoi.Y + curRoi.Height - 10), new Bgr(255, 200, 0));
+                outputImage.Draw("sub" + (subRoiListIndex++).ToString(), ref cvFontBack, new Point(curRoi.X + 5, curRoi.Y + curRoi.Height - 10), new Bgr(255, 200, 0));
             }
 
             //food locatDraw
@@ -287,18 +319,18 @@ namespace BoxSetting
                 default:
                     break;
             }
-            
+
 
             string strMousePos =
                 "(" + mousePos.X + "," + mousePos.Y + ")";
             outputImage.Draw(strMousePos, ref cvFontBack, new Point(mousePos.X, mousePos.Y + 30), new Bgr(255, 255, 255));
 
-            
-            
+
+
 
             var tempYccImg = outputImage.Convert<Ycc, byte>();
             switch (showMode)
-            { 
+            {
                 case 1:
                     captureImageBox.Image = outputImage;
                     break;
@@ -328,7 +360,7 @@ namespace BoxSetting
                 case 103:
                 case 104:
                 case 106:
-                    int mappingIndex = showMode != 106 ? showMode-102 : 3;
+                    int mappingIndex = showMode != 106 ? showMode - 102 : 3;
                     captureImageBox.Image = foodThreshCenterImageList[mappingIndex];
                     break;
                 case 8:
@@ -352,27 +384,27 @@ namespace BoxSetting
                     captureImageBox.Image = outputImage;
                     break;
             }
-            
+
 
         }
 
         /// <summary>將子區域按照由上方為第1個 右下方為第2 左下方為第3的順序排序處理. 子區塊剛好為4個時才排序</summary>
         private void SubRoiSort(ref List<Rectangle> subRoiList)
         {
-            subRoiList.Sort(new Comparison<Rectangle>((r1, r2) => r1.Y - r2.Y));   
+            subRoiList.Sort(new Comparison<Rectangle>((r1, r2) => r1.Y - r2.Y));
             //if (subRoiList.Count == 4)
             //{
-                ////將X+Y後由大到小排序
-                // 改為由Y小至大排序
-                //subRoiList.Sort(new Comparison<Rectangle>((r1, r2) => r1.X + r1.Y - r2.X - r2.Y));
+            ////將X+Y後由大到小排序
+            // 改為由Y小至大排序
+            //subRoiList.Sort(new Comparison<Rectangle>((r1, r2) => r1.X + r1.Y - r2.X - r2.Y));
 
 
-                ////去除左上角子區塊
-                //subRoiList.RemoveAt(0);
-                ////右下與左下對換
-                //Rectangle tmp = subRoiList[1];
-                //subRoiList[1] = subRoiList[2];
-                //subRoiList[2] = tmp;
+            ////去除左上角子區塊
+            //subRoiList.RemoveAt(0);
+            ////右下與左下對換
+            //Rectangle tmp = subRoiList[1];
+            //subRoiList[1] = subRoiList[2];
+            //subRoiList[2] = tmp;
             //}
         }
 
@@ -385,13 +417,13 @@ namespace BoxSetting
 
             Func<int, int, RichTextBox, string> centerInfoStr = (centerFoodAreaTmp, allFoodCount, richBox) => richBox.Text = centerFoodAreaTmp > 0 ? "中心有食物" : allFoodCount > 0 ? "周邊有食物" : "完全沒食物";
             Func<int, List<string>, RichTextBox, string> centerInfoStrByIndex = (func_curStateIndex, func_stateMsgList, richBox) => richBox.Text = func_stateMsgList[func_curStateIndex];
-            Func<string, RichTextBox,string> UpdateRS232Data = (RS232Data, richBox) => richBox.Text = RS232Data;
+            Func<string, RichTextBox, string> UpdateRS232Data = (RS232Data, richBox) => richBox.Text = RS232Data;
 
 
-            List<string> stateMsg = new List<string>() { "完全沒食物", "中心有食物", "周邊有食物",  };
+            List<string> stateMsg = new List<string>() { "完全沒食物", "中心有食物", "周邊有食物", };
             List<char> stateCodeList = new List<char>(6);
-            List<int> stateIndex = new List<int>() { 0 , 1 , 2 };
-             
+            List<int> stateIndex = new List<int>() { 0, 1, 2 };
+
             List<RichTextBox> subRectTextBoxList = new List<RichTextBox>() { richTextBox2, richTextBox3, richTextBox4, richTextBox5 };
             double foodAreaRateTemp = 0d;
             for (int i = 0; i < partitionFoodAreaRate.Count; i++)
@@ -412,7 +444,7 @@ namespace BoxSetting
                     ////串上
                     //stateCodeList.Add(i / 3 == 0 ? '0' : '1');
                     //stateCodeList.Add(i / 3 == 1 ? '0' : '1');
-                    stateCodeList.Add((new char[]{'A','B','C'})[i / 3]);
+                    stateCodeList.Add((new char[] { 'A', 'B', 'C' })[i / 3]);
 
                 }
 
@@ -464,6 +496,7 @@ namespace BoxSetting
         private void Form1_Load(object sender, EventArgs e)
         {
             //button1.Text = "設定子區域";
+           
             //button5.Text = "設定完成";
             //button2.Text = "儲存餐盤搜尋區域";
             button5.Visible = false;
@@ -485,12 +518,13 @@ namespace BoxSetting
             label5.Visible = false;
             label6.Visible = false;
             label7.Visible = false;
+            button1.Visible = false;
             button8.Visible = false;
             button9.Visible = false;
             button10.Visible = false;
             button11.Visible = false;
 
-          
+
 
             button3_Click(null, null);
             button3_Click(null, null);
@@ -518,48 +552,15 @@ namespace BoxSetting
             }
             //-----------------------------------------------
 
-            XmlDocument doc = new XmlDocument();
-            //doc.Save("Plate.xml");
-            doc.Load("Plate.xml");
-            if (doc != null)
-            {
-                XmlElement elePlate = doc.SelectSingleNode("Plate") as XmlElement;
-                if (elePlate != null)
-                {
-                    templetPlateWidth = double.Parse(elePlate.GetAttribute("templetPlateWidth"));
-                    templetPlateHeight = double.Parse(elePlate.GetAttribute("templetPlateHeight"));
-                }
-                XmlElement eleSearchPlateROI;
-                eleSearchPlateROI = doc.SelectSingleNode("Plate/SearchPlateROI") as XmlElement;
-                if (eleSearchPlateROI != null)
-                {
-                    int x = int.Parse(eleSearchPlateROI.GetAttribute("X")),
-                        y = int.Parse(eleSearchPlateROI.GetAttribute("Y")),
-                        width = int.Parse(eleSearchPlateROI.GetAttribute("Width")),
-                        height = int.Parse(eleSearchPlateROI.GetAttribute("Height"));
-                    SearchPlateROI = new Rectangle(x, y, width, height);
-                }
-
-                XmlElement eleSubROI;
-                for (int i = 0; i < 4; i++)
-                {
-                    eleSubROI = doc.SelectSingleNode("Plate/SubROI" + (i + 1).ToString()) as XmlElement;
-                    if (eleSubROI != null)
-                    {
-                        int x = int.Parse(eleSubROI.GetAttribute("X")),
-                            y = int.Parse(eleSubROI.GetAttribute("Y")), 
-                            width = int.Parse(eleSubROI.GetAttribute("Width")), 
-                            height = int.Parse(eleSubROI.GetAttribute("Height"));
-                        subRoiList[i] = new Rectangle(x,y,width,height);
-                    }
-                }
-            }
-
+            Plate.XmlLoad(templetPlateWidth, templetPlateHeight, ref SearchPlateROI, ref subRoiList);
+            curROI = SearchPlateROI;
 
             ReViewListBox();
             OkCancelButton(false);
-            
+
         }
+
+
 
         //------------------------------以下新建RS232-------------------------------------------
         private void button3_Click_1(object sender, EventArgs e)
@@ -607,7 +608,7 @@ namespace BoxSetting
                         this.backgroundWorker1.CancelAsync();
                         this.backgroundWorker1.Dispose();
                         //ovalShape1.FillColor = Color.Red;
-                       
+
                         button3.Text = "連線";
                     }
                 }
@@ -656,7 +657,7 @@ namespace BoxSetting
                     if (!serialport2.IsOpen)
                     {
                         serialport2open = false;
-                       // timer2.Enabled = false;
+                        // timer2.Enabled = false;
                         button12.Enabled = false;
                         //textBox2.Enabled = false;
                         this.backgroundWorker2.WorkerReportsProgress = false;
@@ -758,7 +759,7 @@ namespace BoxSetting
         }
 
         private void AddText(MsgType msgtype, string msg)
-        {           
+        {
             richTextBox1.Invoke(new EventHandler(delegate
             {
                 richTextBox7.SelectedText = string.Empty;
@@ -768,7 +769,7 @@ namespace BoxSetting
                 richTextBox7.ScrollToCaret();
             }));
         }
-     
+
         private void ReViewListBox()
         {
             listBox1.Items.Clear();
@@ -813,11 +814,11 @@ namespace BoxSetting
 
             //greyThreshImg = greyImg.ThresholdBinaryInv(new Gray(greyThreshValue), new Gray(255));
             greyThreshImg = greyImg.CopyBlank();
-            greyThreshValue = (int)Emgu.CV.CvInvoke.cvThreshold(greyImg.Ptr, greyThreshImg.Ptr, greyThreshValue, 255d, 
+            greyThreshValue = (int)Emgu.CV.CvInvoke.cvThreshold(greyImg.Ptr, greyThreshImg.Ptr, greyThreshValue, 255d,
                 WhiteOrBlack | Emgu.CV.CvEnum.THRESH.CV_THRESH_OTSU);
 
             outputImage.Draw("thValue=" + greyThreshValue.ToString(), ref cvFontBack, new Point(0, 50), new Bgr(255, 0, 0));
-            
+
             Emgu.CV.Cvb.CvBlobs resultingImgBlobs = new Emgu.CV.Cvb.CvBlobs();
             Emgu.CV.Cvb.CvBlobDetector bDetect = new Emgu.CV.Cvb.CvBlobDetector();
             //Emgu.CV.Cvb.CvTracks blobTracks = new Emgu.CV.Cvb.CvTracks();
@@ -830,7 +831,7 @@ namespace BoxSetting
             //find MaxBlob
             int maxIndex = -1;
             int maxArea = 0;
-            List<Emgu.CV.Cvb.CvBlob> blob = resultingImgBlobs.Values.ToList < Emgu.CV.Cvb.CvBlob>();
+            List<Emgu.CV.Cvb.CvBlob> blob = resultingImgBlobs.Values.ToList<Emgu.CV.Cvb.CvBlob>();
             for (int i = 0; i < resultingImgBlobs.Count; i++)
             {
                 if (blob[i].Area > maxArea)
@@ -848,7 +849,7 @@ namespace BoxSetting
                 bBox.Y += roi_1.Y;
                 outputImage.Draw(bBox, red, 1);
                 MainRoi = bBox;
-                listBox1.Invoke(refreshListBox,this);
+                listBox1.Invoke(refreshListBox, this);
             }
 
             templetPlateWidth = MainRoi.Width == 0 ? 1 : MainRoi.Width;
@@ -856,6 +857,34 @@ namespace BoxSetting
 
             threshImage = greyThreshImg;
         }
+
+        /// <summary>取消餐盤自動檢測，直接設定MainRoi</summary>
+        private void PlateDetector_ByPass(Image<Bgr, Byte> srcImage, ref Image<Bgr, Byte> outputImage, out Image<Gray, byte> threshImage)
+        {
+            Image<Gray, Byte> greyImg = srcImage.Convert<Gray, Byte>();
+
+            Rectangle roi_1 = SearchPlateROI;
+            greyImg.ROI = roi_1;
+
+            Image<Gray, Byte> greyThreshImg;
+
+            greyThreshImg = greyImg.CopyBlank();
+
+            Bgr red = new Bgr(200, 100, 0);
+            Rectangle bBox = new Rectangle(0, 0, roi_1.Width, roi_1.Height);
+            greyThreshImg.Draw(bBox, new Gray(155), 1);
+            bBox.X += roi_1.X;
+            bBox.Y += roi_1.Y;
+            outputImage.Draw(bBox, red, 1);
+            MainRoi = bBox;
+            listBox1.Invoke(refreshListBox, this);
+
+            templetPlateWidth = MainRoi.Width == 0 ? 1 : MainRoi.Width;
+            templetPlateHeight = MainRoi.Height == 0 ? 1 : MainRoi.Height;
+
+            threshImage = greyThreshImg;
+        }
+
         /// <summary>搜尋餐盤子區域</summary>
         private void SubRoiDetector(Image<Bgr, Byte> srcPlateImage, ref Image<Bgr, Byte> outputImage, out Image<Gray, Byte> subRoiThreshImage)
         {
@@ -897,7 +926,7 @@ namespace BoxSetting
             List<Emgu.CV.Cvb.CvBlob> blob = resultingImgBlobs.Values.ToList<Emgu.CV.Cvb.CvBlob>();
             blob = blob.OrderByDescending<Emgu.CV.Cvb.CvBlob, int>(blobCompeTemp => blobCompeTemp.Area).ToList<Emgu.CV.Cvb.CvBlob>();
 
-            maxLength = Math.Min(blob.Count, 4);
+            maxLength = Math.Min(blob.Count, SubROICount);
             subRoiList = new List<Rectangle>();
             for (int i = 0; i < maxLength; i++)
             {
@@ -914,7 +943,7 @@ namespace BoxSetting
                 //disable --- 找到的子區域稍微縮小 濾除邊界 RectangleCenterScale(bBox, 0.8d);
                 subRoiList.Add(bBox);
                 //subRoiList[i] = ;
-                    
+
 
             }
 
@@ -924,7 +953,7 @@ namespace BoxSetting
         }
 
         /// <summary>將影像於YCbCr色彩空間抽取Cb層用於食物檢測,回傳檢測結果食物blobs以及轉換後的檢測影像</summary>
-        private void FoodDetector(Image<Bgr, Byte> srcImage, Rectangle curSubRoi, ref Image<Bgr, Byte> outputImage, out Image<Gray, byte> foodThreshImage,out List<Rectangle> foodRoiList,out int curCenterFoodArea) //, out Emgu.CV.Cvb.CvBlobs foodBlobList
+        private void FoodDetector(Image<Bgr, Byte> srcImage, Rectangle curSubRoi, ref Image<Bgr, Byte> outputImage, out Image<Gray, byte> foodThreshImage, out List<Rectangle> foodRoiList, out int curCenterFoodArea) //, out Emgu.CV.Cvb.CvBlobs foodBlobList
         {
             //Image<Gray, Byte> greyImg = srcImage.Convert<Gray, Byte>();
             Image<Gray, Byte> greyImg = srcImage.Convert<Ycc, Byte>()[2];
@@ -975,7 +1004,7 @@ namespace BoxSetting
                     foodRoiList.Add(bBox);
                     //outputImage.Draw(bBox, red, 1);
 
-                    
+
                     //outputImage.Draw(centerTemp, new Bgr(255,255,0), 1);
 
                     //判斷是否有食物  已無效
@@ -995,7 +1024,7 @@ namespace BoxSetting
             return foodRect.IntersectsWith(CenterRect);
         }
         //矩形碰撞偵測,計算矩陣內指定數值的面積
-        private int ValueHitTest(Image<Gray ,byte> srcImage, Rectangle Rect, int value = 255)
+        private int ValueHitTest(Image<Gray, byte> srcImage, Rectangle Rect, int value = 255)
         {
             int area = 0;
             for (int i = Rect.Left, width = Rect.Right; i < width; i++)
@@ -1008,7 +1037,7 @@ namespace BoxSetting
                         srcImage.Data[j, i, 0] = 128;
                         area++;
                     }
-                }   
+                }
             }
             return area;
         }
@@ -1029,7 +1058,7 @@ namespace BoxSetting
             tarRect = new Rectangle(srcRect.Left + srcRect.Width / 2 - width / 2, srcRect.Top + srcRect.Height / 2 - heigth / 2, width, heigth);
             return tarRect;
         }
-        
+
 
 
         /// <summary>過濾餐盤子區域邊角誤判的食物</summary>
@@ -1045,7 +1074,7 @@ namespace BoxSetting
                 return true;
             else if (curROI.X < limit && curROI.Bottom > SubRoiHeight - limit) //左下邊界
                 return true;
-            
+
             return false;
         }
         private bool IsSubRoiCorner(Rectangle SearchRoi, Rectangle foodRoi)
@@ -1174,7 +1203,7 @@ namespace BoxSetting
                     OkCancelButton(true);
                     break;
                 default:
-                    curROI = subRoiList[listBox1.SelectedIndex-2];
+                    curROI = subRoiList[listBox1.SelectedIndex - 2];
                     curMouseMode = MouseMode.WaitDrop;
                     OkCancelButton(true);
                     break;
@@ -1248,7 +1277,7 @@ namespace BoxSetting
 
         enum MouseMode
         {
-            Default , WaitDrop, DropStart, DropEndAndWaitDrop
+            Default, WaitDrop, DropStart, DropEndAndWaitDrop
         }
 
         enum TestType
@@ -1280,19 +1309,22 @@ namespace BoxSetting
         }
 
 
+        //編輯餐盤搜索區域
         private void button1_Click(object sender, EventArgs e)
         {
-            SettingMode = true;
-            templetPlateWidth = MainRoi.Width == 0 ? 1 : MainRoi.Width;
-            templetPlateHeight = MainRoi.Height == 0 ? 1 : MainRoi.Height;
+            //SettingMode = true;
+            //templetPlateWidth = MainRoi.Width == 0 ? 1 : MainRoi.Width;
+            //templetPlateHeight = MainRoi.Height == 0 ? 1 : MainRoi.Height;
 
-            //選擇餐盤搜尋區域
-            listBox1.SelectedIndex = 0;
-            curROI = SearchPlateROI;
-            curMouseMode = MouseMode.WaitDrop;
-            button2.Enabled = true;
-            button1.Enabled = false;
+            ////選擇餐盤搜尋區域
+            //listBox1.SelectedIndex = 0;
+            //curROI = SearchPlateROI;
+            //curMouseMode = MouseMode.WaitDrop;
+            //button2.Enabled = true;
+            //button1.Enabled = false;
         }
+
+
         private void button5_Click(object sender, EventArgs e)
         {
             SettingMode = false;
@@ -1300,14 +1332,16 @@ namespace BoxSetting
             templetPlateHeight = MainRoi.Height == 0 ? 1 : MainRoi.Height;
         }
 
+
+        //儲存餐盤搜索區域
         private void button2_Click(object sender, EventArgs e)
         {
             //確認餐盤搜尋區域
-            button2.Enabled = false;
-            button1.Enabled = true;
+            //button2.Enabled = false;
+            //button1.Enabled = true;
             SearchPlateROI = curROI;
             ReViewListBox();
-            curMouseMode = MouseMode.Default;
+            curMouseMode = MouseMode.WaitDrop;
             curROI = new Rectangle();
 
             //修改結束
@@ -1315,38 +1349,7 @@ namespace BoxSetting
             templetPlateWidth = MainRoi.Width == 0 ? 1 : MainRoi.Width;
             templetPlateHeight = MainRoi.Height == 0 ? 1 : MainRoi.Height;
 
-
-            XmlDocument doc = new XmlDocument();
-            //建立根節點
-            XmlElement elePlate = doc.CreateElement("Plate");
-            elePlate.SetAttribute("templetPlateWidth", templetPlateWidth.ToString());
-            elePlate.SetAttribute("templetPlateHeight", templetPlateHeight.ToString());
-            doc.AppendChild(elePlate);
-
-            //建立子節點
-            XmlElement elePlateSearchROI;
-            elePlateSearchROI = doc.CreateElement("SearchPlateROI");
-            elePlateSearchROI.SetAttribute("X", SearchPlateROI.X.ToString());
-            elePlateSearchROI.SetAttribute("Y", SearchPlateROI.Y.ToString());
-            elePlateSearchROI.SetAttribute("Width", SearchPlateROI.Width.ToString());
-            elePlateSearchROI.SetAttribute("Height", SearchPlateROI.Height.ToString());
-            elePlate.AppendChild(elePlateSearchROI);
-
-            XmlElement eleSubROI;
-            for (int i = 0; i < subRoiList.Count; i++)
-            {
-                eleSubROI = doc.CreateElement("SubROI" + (i+1).ToString());
-                eleSubROI.SetAttribute("X", subRoiList[i].X.ToString());
-                eleSubROI.SetAttribute("Y", subRoiList[i].Y.ToString());
-                eleSubROI.SetAttribute("Width", subRoiList[i].Width.ToString());
-                eleSubROI.SetAttribute("Height", subRoiList[i].Height.ToString());
-                elePlate.AppendChild(eleSubROI);
-            }
-            //FileInfo docTest = new FileInfo("Plate.xml");
-            //if (docTest != null)
-            //    docTest.Delete();
-            doc.Save("Plate.xml");
-            
+            Plate.XmlSave(templetPlateWidth, templetPlateHeight, SearchPlateROI, subRoiList);
         }
 
         int debugThreshold = 0;
@@ -1362,7 +1365,7 @@ namespace BoxSetting
 
         private void button13_Click(object sender, EventArgs e)
         {
-         
+
         }
 
         private void button14_Click(object sender, EventArgs e)
@@ -1377,9 +1380,37 @@ namespace BoxSetting
             threshImage.Save(@"F:\餐盤影像\test_threshImage.jpg");
         }
 
-       
+        private void button15_Click(object sender, EventArgs e)
+        {
+            if (subRoiList.Count >= 1)
+            {
+                subRoiList[0] = curROI;
+            }
+            Plate.XmlSave(templetPlateWidth, templetPlateHeight, SearchPlateROI, subRoiList);
 
-        
+        }
+
+        private void button16_Click(object sender, EventArgs e)
+        {
+            if (subRoiList.Count >= 2)
+            {
+                subRoiList[1] = curROI;
+            }
+            Plate.XmlSave(templetPlateWidth, templetPlateHeight, SearchPlateROI, subRoiList);
+        }
+
+        private void button17_Click(object sender, EventArgs e)
+        {
+            if (subRoiList.Count >= 3)
+            {
+                subRoiList[2] = curROI;
+            }
+            Plate.XmlSave(templetPlateWidth, templetPlateHeight, SearchPlateROI, subRoiList);
+        }
+
+
+
+
 
     }
 
