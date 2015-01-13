@@ -158,10 +158,10 @@
             // 
             // trackBar1
             // 
-            this.trackBar1.Location = new System.Drawing.Point(1075, 286);
+            this.trackBar1.Location = new System.Drawing.Point(9, 190);
             this.trackBar1.Maximum = 255;
             this.trackBar1.Name = "trackBar1";
-            this.trackBar1.Size = new System.Drawing.Size(286, 45);
+            this.trackBar1.Size = new System.Drawing.Size(288, 45);
             this.trackBar1.TabIndex = 11;
             this.trackBar1.Scroll += new System.EventHandler(this.trackBar1_Scroll);
             // 
@@ -407,7 +407,7 @@
             // 
             // button13
             // 
-            this.button13.Location = new System.Drawing.Point(168, 216);
+            this.button13.Location = new System.Drawing.Point(168, 221);
             this.button13.Name = "button13";
             this.button13.Size = new System.Drawing.Size(75, 23);
             this.button13.TabIndex = 42;
@@ -417,7 +417,7 @@
             // comboBox2
             // 
             this.comboBox2.FormattingEnabled = true;
-            this.comboBox2.Location = new System.Drawing.Point(56, 216);
+            this.comboBox2.Location = new System.Drawing.Point(56, 221);
             this.comboBox2.Name = "comboBox2";
             this.comboBox2.Size = new System.Drawing.Size(106, 20);
             this.comboBox2.TabIndex = 43;

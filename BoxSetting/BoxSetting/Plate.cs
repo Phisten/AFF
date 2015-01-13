@@ -10,7 +10,7 @@ namespace BoxSetting
 {
     public class Plate
     {
-        internal static void XmlSave(double templetPlateWidth, double templetPlateHeight, Rectangle SearchPlateROI, List<Rectangle> subRoiList)
+        internal static void XmlSave(double templetPlateWidth, double templetPlateHeight, Rectangle SearchPlateROI, List<Rectangle> subRoiList, int foodThreshold)
         {
             XmlDocument doc = new XmlDocument();
             //建立根節點
@@ -38,12 +38,19 @@ namespace BoxSetting
                 eleSubROI.SetAttribute("Height", subRoiList[i].Height.ToString());
                 elePlate.AppendChild(eleSubROI);
             }
+
+            XmlElement eleThreshold;
+            eleThreshold = doc.CreateElement("Threshold");
+            eleThreshold.SetAttribute("Food", foodThreshold.ToString());
+            elePlate.AppendChild(eleThreshold);
+
             doc.Save("Plate.xml");
         }
 
-        internal static void XmlLoad(double templetPlateWidth, double templetPlateHeight, ref Rectangle SearchPlateROI, ref List<Rectangle> subRoiList)
+        internal static void XmlLoad(double templetPlateWidth, double templetPlateHeight, ref Rectangle SearchPlateROI, ref List<Rectangle> subRoiList, out int foodThreshold)
         {
             XmlDocument doc = new XmlDocument();
+            foodThreshold = 0;
             doc.Load("Plate.xml");
             if (doc != null)
             {
@@ -76,6 +83,13 @@ namespace BoxSetting
                             height = int.Parse(eleSubROI.GetAttribute("Height"));
                         subRoiList[i] = new Rectangle(x, y, width, height);
                     }
+                }
+
+                XmlElement eleThreshold;
+                eleThreshold = doc.SelectSingleNode("Plate/Threshold") as XmlElement;
+                if (eleThreshold != null)
+                {
+                    foodThreshold = int.Parse(eleThreshold.GetAttribute("Food"));
                 }
             }
         }

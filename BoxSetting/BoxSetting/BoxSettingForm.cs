@@ -200,6 +200,7 @@ namespace BoxSetting
                     outputImage.Draw(Math.Round(foodareaRate*100d).ToString() + "%", ref foodrateFont, new Point(curSubROIpartition1.X + curSubROI.X, curSubROIpartition1.Y + curSubROI.Y), new Bgr(0, 0, 255));
                     outputImage.Draw(new Rectangle(curSubROIpartition1.X + curSubROI.X, curSubROIpartition1.Y + curSubROI.Y, curSubROIpartition1.Width, curSubROIpartition1.Height), new Bgr(255, 200, 100), 1);
 
+                    #region old SubfoodArea
                     ////右下角分割區
                     //Rectangle curSubROIpartition1 = RectangleCenterScale(curSubRoiThresholdRect, 0.5d, 0.5d);
                     //curSubROIpartition1.Offset(curSubRoiThresholdRect.Width / 4, curSubRoiThresholdRect.Height / 4);
@@ -223,7 +224,7 @@ namespace BoxSetting
                     //partitionFoodArea.Add(foodarea);
                     //partitionFoodAreaRate.Add(foodarea / (double)(curSubROIpartition3.Width * curSubROIpartition3.Height));
                     //outputImage.Draw(new Rectangle(curSubROIpartition3.X + curSubROI.X, curSubROIpartition3.Y + curSubROI.Y, curSubROIpartition3.Width, curSubROIpartition3.Height), new Bgr(255, 200, 100), 1);
-
+                    #endregion
 
 
                     //搜尋各子區塊分割區內的食物面積
@@ -511,7 +512,7 @@ namespace BoxSetting
             button6.Visible = false;
             button7.Visible = false;
             listBox1.Visible = false;
-            trackBar1.Visible = false;
+            trackBar1.Visible = true;
             //button2.Visible = false;
             //button3.Visible = false;
             //button4.Visible = false;
@@ -531,6 +532,8 @@ namespace BoxSetting
             button9.Visible = false;
             button10.Visible = false;
             button11.Visible = false;
+            button3.Visible = false;
+            comboBox2.Visible = false;
 
 
 
@@ -560,7 +563,8 @@ namespace BoxSetting
             }
             //-----------------------------------------------
 
-            Plate.XmlLoad(templetPlateWidth, templetPlateHeight, ref SearchPlateROI, ref subRoiList);
+            Plate.XmlLoad(templetPlateWidth, templetPlateHeight, ref SearchPlateROI, ref subRoiList,out foodThreshold);
+            trackBar1.Value = foodThreshold;
             curROI = SearchPlateROI;
 
             ReViewListBox();
@@ -964,7 +968,7 @@ namespace BoxSetting
         private void FoodDetector(Image<Bgr, Byte> srcImage, Rectangle curSubRoi, ref Image<Bgr, Byte> outputImage, out Image<Gray, byte> foodThreshImage, out List<Rectangle> foodRoiList, out int curCenterFoodArea) //, out Emgu.CV.Cvb.CvBlobs foodBlobList
         {
             //Image<Gray, Byte> greyImg = srcImage.Convert<Gray, Byte>();
-            Image<Gray, Byte> greyImg = srcImage.Convert<Ycc, Byte>()[2];
+            Image<Gray, Byte> greyImg = srcImage.Convert<Ycc, Byte>()[0]; //source 2
             greyImg.ROI = curSubRoi;
 
             Image<Gray, Byte> greyThreshImg;
@@ -975,9 +979,9 @@ namespace BoxSetting
 
             //Emgu.CV.CvEnum.THRESH FoodThresType = Emgu.CV.CvEnum.THRESH.CV_THRESH_BINARY;
             Emgu.CV.CvEnum.THRESH FoodThresType = Emgu.CV.CvEnum.THRESH.CV_THRESH_BINARY_INV;
-            if (DebugThresholdMode >= 1 && debugThreshold > 0)
+            if (DebugThresholdMode >= 1 && foodThreshold > 0)
             {
-                greyThreshValue = (int)Emgu.CV.CvInvoke.cvThreshold(greyImg.Ptr, greyThreshImg.Ptr, debugThreshold, 255d, FoodThresType);
+                greyThreshValue = (int)Emgu.CV.CvInvoke.cvThreshold(greyImg.Ptr, greyThreshImg.Ptr, foodThreshold, 255d, FoodThresType);
             }
             else
             {
@@ -1362,13 +1366,13 @@ namespace BoxSetting
             templetPlateWidth = MainRoi.Width == 0 ? 1 : MainRoi.Width;
             templetPlateHeight = MainRoi.Height == 0 ? 1 : MainRoi.Height;
 
-            Plate.XmlSave(templetPlateWidth, templetPlateHeight, SearchPlateROI, subRoiList);
+            Plate.XmlSave(templetPlateWidth, templetPlateHeight, SearchPlateROI, subRoiList, foodThreshold);
         }
 
-        int debugThreshold = 0;
+        int foodThreshold = 0;
         private void trackBar1_Scroll(object sender, EventArgs e)
         {
-            debugThreshold = trackBar1.Value;
+            foodThreshold = trackBar1.Value;
         }
 
         private void backgroundWorker1_DoWork_1(object sender, DoWorkEventArgs e)
@@ -1399,7 +1403,7 @@ namespace BoxSetting
             {
                 subRoiList[0] = curROI;
             }
-            Plate.XmlSave(templetPlateWidth, templetPlateHeight, SearchPlateROI, subRoiList);
+            Plate.XmlSave(templetPlateWidth, templetPlateHeight, SearchPlateROI, subRoiList, foodThreshold);
 
         }
 
@@ -1409,7 +1413,7 @@ namespace BoxSetting
             {
                 subRoiList[1] = curROI;
             }
-            Plate.XmlSave(templetPlateWidth, templetPlateHeight, SearchPlateROI, subRoiList);
+            Plate.XmlSave(templetPlateWidth, templetPlateHeight, SearchPlateROI, subRoiList, foodThreshold);
         }
 
         private void button17_Click(object sender, EventArgs e)
@@ -1418,7 +1422,7 @@ namespace BoxSetting
             {
                 subRoiList[2] = curROI;
             }
-            Plate.XmlSave(templetPlateWidth, templetPlateHeight, SearchPlateROI, subRoiList);
+            Plate.XmlSave(templetPlateWidth, templetPlateHeight, SearchPlateROI, subRoiList, foodThreshold);
         }
 
 
